@@ -1,6 +1,7 @@
 import { Router, Response } from "express";
 import User from "../models/User";
 import Transaction from "../models/Transaction";
+import UserNotification from "../models/UserNotification";
 import { authMiddleware, AuthRequest } from "../middleware/auth";
 
 const router = Router();
@@ -63,6 +64,13 @@ router.post("/credit", async (req: AuthRequest, res: Response): Promise<void> =>
       balanceBefore: before,
       balanceAfter: target.points,
       description: description || "Admin credit",
+    });
+
+    await UserNotification.create({
+      userId: target._id,
+      type: "points_credit",
+      title: "💰 Points Credited",
+      message: `You received +${amount} pts${description ? `: ${description}` : ""}`,
     });
 
     res.json({ user: target.toJSON() });

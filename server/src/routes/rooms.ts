@@ -2,6 +2,7 @@ import { Router, Response } from "express";
 import Room from "../models/Room";
 import User from "../models/User";
 import Transaction from "../models/Transaction";
+import UserNotification from "../models/UserNotification";
 import { authMiddleware, AuthRequest } from "../middleware/auth";
 
 const router = Router();
@@ -189,6 +190,16 @@ router.post("/:id/accept", async (req: AuthRequest, res: Response): Promise<void
 
     room.joinStatus = "accepted";
     await room.save();
+
+    if (room.joinedBy) {
+      await UserNotification.create({
+        userId: room.joinedBy,
+        type: "join_accepted",
+        title: "✅ Join Accepted",
+        message: `Your request to join "${room.name}" has been accepted by ${room.creatorName}.`,
+        relatedId: String(room._id),
+      });
+    }
 
     const populated = await Room.findById(room._id)
       .populate("creator", "username uid points")

@@ -3,6 +3,7 @@ import Game from "../models/Game";
 import Room from "../models/Room";
 import User from "../models/User";
 import Transaction from "../models/Transaction";
+import UserNotification from "../models/UserNotification";
 import { authMiddleware, AuthRequest } from "../middleware/auth";
 
 const router = Router();
@@ -171,6 +172,28 @@ router.post("/approve/:gameId", async (req: AuthRequest, res: Response): Promise
       room: room._id,
       description: `Won match "${room.name}"`,
     });
+
+    await UserNotification.create({
+      userId: winner._id,
+      type: "game_win",
+      title: "🏆 You Won!",
+      message: `You won the match "${room.name}" and earned +${totalPool} pts!`,
+      relatedId: String(room._id),
+    });
+
+    const loserId =
+      String(room.creator) === String(winner._id)
+        ? room.joinedBy
+        : room.creator;
+    if (loserId) {
+      await UserNotification.create({
+        userId: loserId,
+        type: "game_win",
+        title: "Match Completed",
+        message: `The match "${room.name}" has been completed. Winner: ${winner.username}`,
+        relatedId: String(room._id),
+      });
+    }
 
     res.json({ game });
   } catch (err) {

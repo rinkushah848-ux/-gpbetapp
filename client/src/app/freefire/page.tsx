@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import BottomNav from '@/components/BottomNav';
 import Header from '@/components/Header';
 import NotificationBanner from '@/components/NotificationBanner';
+import NotificationCenter from '@/components/NotificationCenter';
 import authService, { User } from '@/utils/authService';
 import apiService, { RoomData, GameData } from '@/utils/apiService';
 import { useProtectedRoute } from '@/utils/useAuth';
@@ -132,6 +133,7 @@ export default function FreeFirePage() {
         <div className="flex items-start justify-between gap-4">
           <Header title="Free Fire" subtitle="Custom rooms" />
           <div className="flex items-center gap-3">
+            <NotificationCenter />
             <div className="shrink-0 rounded-2xl border border-[#00ff88]/20 bg-[#10251f] px-4 py-3 text-right">
               <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#8fe8bd]">Points</p>
               <p className="text-2xl font-bold text-[#00ff88]">{user?.points ?? 0}</p>
