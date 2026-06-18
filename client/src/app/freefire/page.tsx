@@ -517,6 +517,17 @@ function RoomCard({ room, user, myRoom, onRefresh }: { room: RoomData; user: Use
         <p className="mt-1 text-xs text-[#b0b0b0]">{room.type === 'lonewolf' ? 'Lone Wolf' : 'Team'} {room.size}</p>
       </div>
 
+      {isActive && !room.joinedBy && (
+        <div className="border-b border-[#00d4ff]/10 px-4 py-2 text-center">
+          <p className="text-[10px] text-[#b0b0b0]">No player have joined yet. <span className="text-[#00d4ff] font-semibold">Be the first to join!</span></p>
+        </div>
+      )}
+      {isActive && room.joinedBy && (
+        <div className="border-b border-[#00d4ff]/10 px-4 py-2 text-center">
+          <p className="text-[10px] text-[#00ff88]">Player has been joined the match</p>
+        </div>
+      )}
+
       {isActive && isJoined && room.joinStatus === 'pending' && (
         <div className="flex items-center justify-between border-b border-[#00d4ff]/10 px-4 py-2">
           <span className="text-[10px] text-[#ffcc00] font-semibold">Awaiting creator approval...</span>
