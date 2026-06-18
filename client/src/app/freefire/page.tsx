@@ -589,7 +589,7 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
 
       {/* Buttons */}
       <div className="flex gap-3 p-4">
-        {!isMyRoom && isActive && !room.joinedBy && (
+        {isActive && !isMyRoom && !isJoined && (
           <button onClick={async () => {
             try {
               await apiService.joinRoom(room._id);
@@ -598,22 +598,32 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
               alert(err.response?.data?.error || 'Failed to join');
             }
           }} className="flex-1 rounded-xl bg-[#00d4ff] px-4 py-3 text-sm font-bold text-[#0f0f1e] transition hover:bg-[#00d4ff]/80">
-            Join • Entry {room.fee} pts
+            Join : {room.fee} pts
           </button>
+        )}
+        {isActive && isJoined && (
+          <span className="flex-1 rounded-xl bg-[#00d4ff]/10 px-4 py-3 text-sm font-bold text-[#00d4ff]/60 text-center">
+            Entry {room.fee} pts
+          </span>
+        )}
+        {isActive && isCreator && (
+          <span className="flex-1 rounded-xl bg-[#00d4ff]/10 px-4 py-3 text-sm font-bold text-[#00d4ff]/60 text-center">
+            Entry {room.fee} pts
+          </span>
         )}
         {isCreator && isActive && room.joinedBy && !room.roomIdPass && (
           <button onClick={() => setShowIdPass(!showIdPass)} className="flex-1 rounded-xl bg-[#ffcc00]/20 px-4 py-3 text-sm font-bold text-[#ffcc00] transition hover:bg-[#ffcc00] hover:text-[#0f0f1e]">
             🔑 Add ID/Pass
           </button>
         )}
-        {!isMyRoom && isActive && room.joinedBy && room.joinStatus === 'accepted' && isJoined && (
-          <button onClick={async () => { try { await apiService.cancelJoin(room._id); onRefresh(); } catch (err: any) { alert(err.response?.data?.error || 'Failed to leave'); } }} className="flex-1 rounded-xl bg-[#ff6b6b] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#ff6b6b]/80">
-            Leave Room
-          </button>
-        )}
         {isActive && room.roomIdPass && (isCreator || isJoined) && !showSS && (
           <button onClick={() => setShowSS(true)} className="flex-1 rounded-xl bg-[#00ff88]/15 px-4 py-3 text-sm font-bold text-[#00ff88] transition hover:bg-[#00ff88] hover:text-[#0f0f1e]">
             📸 Result
+          </button>
+        )}
+        {isActive && isJoined && room.joinStatus === 'accepted' && (
+          <button onClick={async () => { try { await apiService.cancelJoin(room._id); onRefresh(); } catch (err: any) { alert(err.response?.data?.error || 'Failed to leave'); } }} className="rounded-xl bg-[#ff6b6b] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#ff6b6b]/80">
+            Leave
           </button>
         )}
       </div>
