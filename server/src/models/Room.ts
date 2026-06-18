@@ -22,6 +22,7 @@ export interface IRoom extends Document {
   joinedByName: string;
   joinStatus: string;
   roomIdPass: string;
+  roomPass: string;
   winner: ObjectId | null;
 }
 
