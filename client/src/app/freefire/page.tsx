@@ -403,6 +403,7 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
         {isActive && !isPending && <span className="text-[10px] text-[#00ff88]">● Active</span>}
         {isPending && <span className="text-[10px] text-[#ffcc00]">⏳ Pending</span>}
         <span className="text-[10px] text-[#00d4ff]">Fee: {room.fee}pts</span>
+        <span className="text-[10px] text-[#00ff88] font-bold">🏆 {room.fee * 2}pts</span>
         {isCreator && isActive && (
           <button onClick={async () => {
             try {
@@ -441,6 +442,7 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
             <p><span className="text-[#b0b0b0]">Rounds:</span> <span className="text-[#eaeaea] font-semibold">{room.rounds}</span></p>
             <p><span className="text-[#b0b0b0]">Coin:</span> <span className="text-[#eaeaea] font-semibold">{room.coin}</span></p>
             <p><span className="text-[#b0b0b0]">Fee:</span> <span className="text-[#00ff88] font-semibold">{room.fee} pts</span></p>
+            <p><span className="text-[#b0b0b0]">Winner:</span> <span className="text-[#ffcc00] font-semibold">{room.fee * 2} pts</span></p>
           </div>
         </div>
       </div>
@@ -626,18 +628,6 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
 
       {/* Buttons */}
       <div className="flex gap-3 p-4">
-        {isActive && (isCreator || isJoined) && (
-          <button onClick={async () => {
-            try {
-              await apiService.finishRoom(room._id);
-              onRefresh();
-            } catch (err: any) {
-              alert(err.response?.data?.error || 'Failed to finish room');
-            }
-          }} className="flex-1 rounded-xl bg-[#00ff88]/15 px-4 py-3 text-sm font-bold text-[#00ff88] transition hover:bg-[#00ff88] hover:text-[#0f0f1e]">
-            🏆 Finish Match
-          </button>
-        )}
         {!isMyRoom && isActive && !room.joinedBy && (
           <button onClick={async () => {
             try {
@@ -647,7 +637,7 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
               alert(err.response?.data?.error || 'Failed to join');
             }
           }} className="flex-1 rounded-xl bg-[#00d4ff] px-4 py-3 text-sm font-bold text-[#0f0f1e] transition hover:bg-[#00d4ff]/80">
-            Join Room • {room.fee} pts
+            Join • Win {room.fee * 2} pts
           </button>
         )}
         {!isMyRoom && isActive && room.joinedBy && room.joinStatus === 'accepted' && isJoined && (
