@@ -8,8 +8,9 @@ import authService, { User } from '@/utils/authService';
 import apiService, { GameData, RoomData } from '@/utils/apiService';
 import { useProtectedRoute } from '@/utils/useAuth';
 
-const ffChars = ['Alok', 'Hayato', 'Kla', 'Moco', 'Paloma', 'Sonia', 'Andrew', 'Caroline', 'Olivia', 'Wukong', 'Dimitri', 'Wolfrahh', 'Steffie', 'Nairi', 'Jota', 'Lila'];
-const ffGuns = ['M1014', 'MP40', 'AK47', 'SCAR', 'M14', 'AWM', 'SVD', 'M82B', 'M4A1', 'MP5', 'UMP', 'Vector', 'P90', 'FAMAS', 'AN94', 'GROZA', 'X8', 'AC80'];
+const ffChars = ['Tatsuya', 'Alok', 'Iris', 'Xayne', 'Homer', 'Kenta', 'Dmitri', 'Skyler', 'Chrono', 'K', 'Clu', 'Steffie', 'A124', 'Wukong', 'Santino', 'Nero', 'Oscar', 'Koda', 'Kassie', 'Ignis', 'Orion', 'Ryden'];
+const ffGuns = ['MP40', 'UMP', 'MP5', 'BIZON', 'Thompson', 'VECTOR', 'M1014', 'M1887', 'MAG7', 'SPAS12', 'M590', 'AWM', 'XM8', 'DESERT EAGLE', 'WOODPECKER', 'AC80'];
+const ffArmor = ['Vest lv2', 'Vest lv3', 'Vest lv4', 'Helmet lv2', 'Helmet lv3'];
 
 export default function FreeFirePage() {
   const { isLoading } = useProtectedRoute();
@@ -35,6 +36,7 @@ export default function FreeFirePage() {
   const [newUnGuns, setNewUnGuns] = useState<string[]>([]);
   const [newUnChars, setNewUnChars] = useState<string[]>([]);
   const [newUnArmor, setNewUnArmor] = useState('Vest Lv3, Helmet Lv3');
+  const [showRules, setShowRules] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -99,6 +101,23 @@ export default function FreeFirePage() {
     setNewUnGuns([]);
     setNewUnChars([]);
     setNewUnArmor('Vest Lv3, Helmet Lv3');
+    setShowRules(false);
+  };
+
+  const toggleList = (value: string, list: string[], setter: (next: string[]) => void) => {
+    setter(list.includes(value) ? list.filter((item) => item !== value) : [...list, value]);
+  };
+
+  const restrictedArmor = newUnArmor
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+  const selectedArmor = ffArmor.filter((item) => !restrictedArmor.includes(item));
+  const toggleArmor = (value: string) => {
+    const nextSelected = selectedArmor.includes(value)
+      ? selectedArmor.filter((item) => item !== value)
+      : [...selectedArmor, value];
+    setNewUnArmor(ffArmor.filter((item) => !nextSelected.includes(item)).join(', '));
   };
 
   const handleCreate = async () => {
@@ -117,7 +136,7 @@ export default function FreeFirePage() {
         character: newCharAbility === 'yes' ? newChar : '',
         gun: newCharAbility === 'yes' ? newGun : '',
         unallowedGuns: newCharAbility === 'no' ? newUnGuns : [],
-        unallowedChars: newCharAbility === 'no' ? newUnChars : [],
+        unallowedChars: newCharAbility === 'no' ? (newUnChars.length ? ffChars.filter((char) => !newUnChars.includes(char)) : ['Dmitri', 'Ryden', 'Orion']) : [],
         unallowedArmor: newUnArmor,
       });
       setRooms((prev) => [room, ...prev]);
@@ -211,70 +230,189 @@ export default function FreeFirePage() {
         )}
 
         {showCreate && (
-          <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 p-4 pt-10">
-            <div className="mx-auto max-w-md rounded-3xl border border-[#00d4ff]/30 bg-[#12142c] p-6 shadow-2xl">
-              <div className="mb-4 rounded-xl border border-red-500/40 bg-red-600/20 p-3 text-center">
-                <p className="text-xs font-bold text-red-400">WARNING</p>
-                <p className="mt-1 text-[11px] text-red-300">Any kind of hack or panel user will be permanently banned.</p>
-              </div>
-              <h3 className="mb-4 text-lg font-bold text-[#eaeaea]">Create Room</h3>
-              {error && <p className="mb-2 text-xs text-red-400">{error}</p>}
-
-              <div className="space-y-3">
-                <div className="flex items-center justify-between rounded-xl bg-[#1a1c36] px-3 py-2">
-                  <p className="text-xs font-bold text-[#00d4ff]">{user?.username}</p>
-                  <button onClick={() => navigator.clipboard.writeText(user?.uid || '')} className="text-[10px] text-[#b0b0b0] underline hover:text-[#00ff88]">copy</button>
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60">
+            <div className="max-h-[88vh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-[#eef5f9] px-5 pb-8 pt-3 text-[#111820] shadow-2xl">
+              <div className="mx-auto mb-5 h-1 w-20 rounded-full bg-[#0d3e5a]" />
+              <div className="mb-5 flex items-center justify-between">
+                <div className="text-lg font-black tracking-tight">
+                  <span>FREE F</span>
+                  <span className="text-[#f27022]">I</span>
+                  <span>RE</span>
                 </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <Select label="Type" value={newType} onChange={setNewType} options={['custom', 'lonewolf']} />
-                  <Select label="Team" value={newSize} onChange={setNewSize} options={['1v1', '2v2', '3v3', '4v4']} />
-                </div>
-
-                <ToggleBlock label="Character Ability" value={newCharAbility} onChange={setNewCharAbility}>
-                  {newCharAbility === 'yes' ? (
-                    <input value={newChar} onChange={(e) => setNewChar(e.target.value)} className="w-full rounded-lg bg-[#16213e] px-3 py-2 text-xs text-[#eaeaea] outline-none" placeholder="Type character name..." />
-                  ) : (
-                    <select multiple value={newUnChars} onChange={(e) => setNewUnChars(Array.from(e.target.selectedOptions, (o) => o.value))} className="h-16 w-full rounded-lg bg-[#16213e] px-2 py-1 text-[10px] text-[#eaeaea] outline-none">
-                      {ffChars.map((c) => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                  )}
-                </ToggleBlock>
-
-                <div className="rounded-xl bg-[#1a1c36] p-3">
-                  <label className="mb-2 block text-[10px] font-semibold text-[#b0b0b0]">Gun</label>
-                  {newCharAbility === 'yes' ? (
-                    <select value={newGun} onChange={(e) => setNewGun(e.target.value)} className="w-full rounded-lg bg-[#16213e] px-3 py-2 text-xs text-[#eaeaea] outline-none">
-                      <option value="">-- Select Gun --</option>
-                      {ffGuns.map((g) => <option key={g} value={g}>{g}</option>)}
-                    </select>
-                  ) : (
-                    <select multiple value={newUnGuns} onChange={(e) => setNewUnGuns(Array.from(e.target.selectedOptions, (o) => o.value))} className="h-16 w-full rounded-lg bg-[#16213e] px-2 py-1 text-[10px] text-[#eaeaea] outline-none">
-                      {ffGuns.map((g) => <option key={g} value={g}>{g}</option>)}
-                    </select>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <ToggleSmall label="Throw" value={newThrow} onChange={setNewThrow} />
-                  <ToggleSmall label="Headshot" value={newHS} onChange={setNewHS} />
-                  <Select label="Rounds" value={newRounds} onChange={setNewRounds} options={['7', '13']} />
-                  <Select label="Coin" value={newCoin} onChange={setNewCoin} options={['Default', '9950']} />
-                </div>
-
-                <input value={newUnArmor} onChange={(e) => setNewUnArmor(e.target.value)} className="w-full rounded-lg bg-[#16213e] px-3 py-2 text-xs text-[#eaeaea] outline-none" placeholder="Armor restrictions" />
-                <input type="number" value={newFee} onChange={(e) => setNewFee(Math.max(1, Number(e.target.value)))} className="input-field text-sm" min={1} />
+                <button onClick={() => { setShowCreate(false); setError(''); }} className="rounded-full border border-[#8da7b5] px-3 py-1 text-sm font-bold">
+                  Close
+                </button>
               </div>
 
-              <div className="mt-5 flex gap-3">
-                <button onClick={() => { setShowCreate(false); setError(''); }} className="btn-secondary w-full text-sm">Cancel</button>
-                <button onClick={handleCreate} className="btn-primary w-full text-sm">Create - {newFee} points</button>
+              <p className="mb-5 border-b border-[#aebbc3] pb-5 text-xl font-extrabold leading-snug">
+                Create your own match. This match will be shown to other players in this app.
+              </p>
+              {error && <p className="mb-3 rounded-md bg-[#ffe3e3] px-3 py-2 text-sm font-bold text-[#b81d24]">{error}</p>}
+
+              <CreateGroup label="Room Type:">
+                <CreateChoice active={newType === 'custom'} onClick={() => setNewType('custom')}>Custom Room</CreateChoice>
+                <CreateChoice active={newType === 'lonewolf'} onClick={() => setNewType('lonewolf')}>Lone Wolf</CreateChoice>
+              </CreateGroup>
+
+              <CreateGroup label="Team:">
+                {['1v1', '2v2', '3v3', '4v4'].map((value) => (
+                  <CreateChoice key={value} active={newSize === value} onClick={() => setNewSize(value)}>{value}</CreateChoice>
+                ))}
+              </CreateGroup>
+
+              <CreateToggle label="Throwable Limit:" value={newThrow} onChange={setNewThrow} />
+
+              {newThrow === 'yes' && (
+                <div className="mb-6 rounded-md border-2 border-[#111820] px-4 py-5">
+                  <h2 className="mb-5 text-center text-lg font-extrabold">Choose your game items:</h2>
+                  <ChipPicker
+                    title="Compulsory Weapons:"
+                    items={ffGuns}
+                    selected={newGun ? [newGun] : []}
+                    onToggle={(item) => setNewGun(newGun === item ? '' : item)}
+                  />
+                  <ChipPicker
+                    title="Compulsory Armor:"
+                    items={ffArmor}
+                    selected={selectedArmor}
+                    onToggle={toggleArmor}
+                  />
+                </div>
+              )}
+
+              <CreateToggle label="Character Skill:" value={newCharAbility} onChange={setNewCharAbility} />
+
+              {newCharAbility === 'no' && (
+                <div className="mb-6 rounded-md border-2 border-[#111820] px-4 py-5">
+                  <div className="mb-5 rounded-xl border-2 border-[#3fb36b] bg-[#eefcf1] p-4 text-sm font-bold text-[#324039]">
+                    <span className="mr-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#3fb36b] text-white">✓</span>
+                    All active character skills are allowed except: Dmitri, Ryden, Orion.
+                  </div>
+                  <div className="mb-5 flex items-center gap-4 text-center text-lg font-extrabold text-[#4b4b4b]">
+                    <span className="h-px flex-1 bg-[#aebbc3]" /> OR <span className="h-px flex-1 bg-[#aebbc3]" />
+                  </div>
+                  <ChipPicker
+                    title="Select to allow these active characters:"
+                    items={ffChars}
+                    selected={newUnChars}
+                    onToggle={(item) => toggleList(item, newUnChars, setNewUnChars)}
+                  />
+                </div>
+              )}
+
+              <CreateToggle label="Headshot mode:" value={newHS} onChange={setNewHS} />
+
+              <CreateGroup label="Rounds:">
+                {['7', '13'].map((value) => (
+                  <CreateChoice key={value} active={newRounds === value} onClick={() => setNewRounds(value)}>{value}</CreateChoice>
+                ))}
+              </CreateGroup>
+
+              <CreateGroup label="Coin:">
+                {['Default', '9950'].map((value) => (
+                  <CreateChoice key={value} active={newCoin === value} onClick={() => setNewCoin(value)}>{value === 'Default' ? 'Default Coin' : value}</CreateChoice>
+                ))}
+              </CreateGroup>
+
+              <CreateGroup label="Room Maker:">
+                <CreateChoice active>Me</CreateChoice>
+                <CreateChoice active={false}>Opponent</CreateChoice>
+              </CreateGroup>
+
+              <div className="mb-5 rounded-md bg-[#f3f3f3] px-4 py-4 text-center">
+                <p className="mb-4 font-extrabold text-[#c92b2b] underline">ⓘ Please enter your Free Fire name here.</p>
+                <p className="font-extrabold text-[#c92b2b]">⚠ Any kinds of hackers and panel users will be banned permanently from this app.</p>
               </div>
+
+              <div className="mb-5 rounded-md bg-white px-3 py-4 shadow-sm">
+                <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3">
+                  <input
+                    value={newName}
+                    onChange={(event) => setNewName(event.target.value)}
+                    placeholder="0"
+                    className="min-w-0 border-b border-[#9aa9b1] bg-transparent py-2 text-lg outline-none"
+                  />
+                  <button onClick={() => setNewFee(Math.max(1, newFee - 5))} className="h-12 w-12 rounded-full border-2 border-black text-3xl leading-none">−</button>
+                  <button onClick={() => setNewFee(newFee + 5)} className="h-12 w-12 rounded-full border-2 border-black text-3xl leading-none">+</button>
+                  <button onClick={handleCreate} className="rounded-full bg-[#45b84e] px-6 py-3 text-lg font-extrabold text-white shadow">
+                    Create
+                  </button>
+                </div>
+                <p className="mt-2 font-bold">Potential winnings: {(newFee + 10).toFixed(1)} Points</p>
+                <p className="mt-4 font-semibold italic text-[#df3b3b]">Create your own match.</p>
+              </div>
+
+              <button onClick={() => setShowRules(!showRules)} className="flex w-full items-center justify-between px-4 py-4 text-xl font-extrabold text-[#21486d]">
+                <span>☷ Please read all the rules</span>
+                <span>{showRules ? '⌃' : '⌄'}</span>
+              </button>
+              {showRules && (
+                <p className="px-4 pb-4 text-sm font-semibold leading-7 text-[#1b2730]">
+                  Match मा compulsory items creator ले select गरेको rule अनुसार प्रयोग गर्नुपर्छ। Unselected items राखेमा refund rule apply हुन सक्छ।
+                </p>
+              )}
             </div>
           </div>
         )}
       </div>
       <BottomNav />
+    </div>
+  );
+}
+
+function CreateGroup({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="mb-6">
+      <p className="mb-3 text-base font-extrabold">{label}</p>
+      <div className="flex flex-wrap gap-4">{children}</div>
+    </div>
+  );
+}
+
+function CreateChoice({ active, onClick, children }: { active: boolean; onClick?: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`min-h-[58px] min-w-[132px] rounded-md border px-5 text-xl font-medium shadow-sm ${
+        active ? 'border-[#0d3e5a] bg-white text-black' : 'border-[#9eadb5] bg-[#e5e5e5] text-[#8a6d6d]'
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function CreateToggle({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  return (
+    <CreateGroup label={label}>
+      <CreateChoice active={value === 'yes'} onClick={() => onChange('yes')}>Yes</CreateChoice>
+      <CreateChoice active={value === 'no'} onClick={() => onChange('no')}>No</CreateChoice>
+    </CreateGroup>
+  );
+}
+
+function ChipPicker({ title, items, selected, onToggle }: { title: string; items: string[]; selected: string[]; onToggle: (item: string) => void }) {
+  return (
+    <div className="mb-6">
+      <p className="mb-3 text-lg font-extrabold underline">{title}</p>
+      <div className="flex flex-wrap justify-center gap-3">
+        {items.map((item) => {
+          const isSelected = selected.includes(item);
+          return (
+            <button
+              key={item}
+              type="button"
+              onClick={() => onToggle(item)}
+              className={`rounded-md border px-5 py-3 text-lg shadow-sm ${
+                isSelected ? 'border-[#1e5b6d] bg-white text-black' : 'border-[#9eadb5] bg-[#f3f8fb] text-[#243b48]'
+              }`}
+            >
+              {isSelected ? '✓ ' : ''}{item}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -458,10 +596,22 @@ function RoomCard({ room, user, myRoom, onRefresh }: { room: RoomData; user: Use
             if (file) setScreenshot(await toBase64(file));
           }} className="text-[10px] text-[#b0b0b0]" />
           {screenshot && <img src={screenshot} alt="preview" className="max-h-28 rounded-lg" />}
-          <input value={ssMsg} onChange={(e) => setSsMsg(e.target.value)} placeholder="Add a message..." className="w-full rounded-lg bg-[#16213e] px-3 py-2 text-xs text-[#eaeaea] outline-none" />
-          <button onClick={async () => { await apiService.uploadScreenshot(room._id, screenshot, ssMsg); setShowSS(false); onRefresh(); }} disabled={!screenshot || !ssMsg} className="w-full rounded-lg bg-[#00ff88] py-2 text-xs font-bold text-[#0f0f1e] disabled:bg-[#555]">
-            Submit Result
-          </button>
+          <input value={ssMsg} onChange={(e) => setSsMsg(e.target.value)} placeholder="Add a message (optional)..." className="w-full rounded-lg bg-[#16213e] px-3 py-2 text-xs text-[#eaeaea] outline-none" />
+          <div className="flex gap-2">
+            <button onClick={() => { setShowSS(false); setScreenshot(''); setSsMsg(''); }} className="flex-1 rounded-lg bg-[#ff6b6b]/20 py-2 text-xs font-bold text-[#ff6b6b]">
+              Cancel
+            </button>
+            <button onClick={async () => {
+              await apiService.uploadScreenshot(room._id, screenshot, ssMsg);
+              await apiService.closeRoom(room._id);
+              setShowSS(false);
+              setScreenshot('');
+              setSsMsg('');
+              onRefresh();
+            }} disabled={!screenshot} className="flex-1 rounded-lg bg-[#00ff88] py-2 text-xs font-bold text-[#0f0f1e] disabled:bg-[#555] disabled:text-[#999]">
+              Submit Result
+            </button>
+          </div>
         </div>
       )}
     </div>

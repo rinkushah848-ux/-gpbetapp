@@ -430,6 +430,33 @@ router.post("/:id/cancel", async (req: AuthRequest, res: Response): Promise<void
   }
 });
 
+// POST /api/rooms/:id/close
+router.post("/:id/close", async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const room = await Room.findById(req.params.id);
+    if (!room) {
+      res.status(404).json({ error: "Room not found" });
+      return;
+    }
+    if (String(room.creator) !== String(req.user?.id) && String(room.joinedBy) !== String(req.user?.id)) {
+      res.status(403).json({ error: "Only participants can close the room" });
+      return;
+    }
+
+    room.status = "finished";
+    await room.save();
+
+    const populated = await Room.findById(room._id)
+      .populate("creator", "username uid points")
+      .populate("joinedBy", "username uid points");
+
+    res.json({ room: populated });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 // DELETE /api/rooms/:id
 router.delete("/:id", async (req: AuthRequest, res: Response): Promise<void> => {
   try {

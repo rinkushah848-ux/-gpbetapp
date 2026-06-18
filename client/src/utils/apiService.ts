@@ -144,6 +144,12 @@ class ApiService {
     return res.data.game;
   }
 
+  async closeRoom(roomId: string) {
+    this.updateToken();
+    const res = await this.api.post<{ message: string }>(`/api/rooms/close/${roomId}`);
+    return res.data;
+  }
+
   async getGameReview(roomId: string) {
     this.updateToken();
     const res = await this.api.get<{ game: GameData }>(`/api/games/review/${roomId}`);
