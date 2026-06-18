@@ -8,8 +8,11 @@ function iconForTitle(title: string): HeaderIcon {
   if (normalized.includes('profile')) return 'profile';
   if (normalized.includes('deposit')) return 'wallet';
   if (normalized.includes('home')) return 'home';
+  // Treat main tournament/home style titles as “tournament/emoji” icon
+  if (normalized.includes('tournament')) return 'game';
   return 'default';
 }
+
 
 function HeaderGlyph({ icon }: { icon: HeaderIcon }) {
   if (icon === 'profile') {

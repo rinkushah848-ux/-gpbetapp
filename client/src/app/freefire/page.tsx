@@ -643,8 +643,15 @@ function RoomCard({ room, user, myRoom, onRefresh }: { room: RoomData; user: Use
             </span>
           </>
         )}
-        {isJoined && isActive && room.joinStatus === 'accepted' && (
-          <button onClick={async () => { await apiService.cancelJoin(room._id); onRefresh(); }} className="flex-1 rounded-xl bg-[#ff6b6b] px-4 py-3 text-sm font-bold text-white">
+        {/* After creator accepts, prevent joiner from leaving */}
+        {isJoined && isActive && room.joinStatus !== 'accepted' && (
+          <button
+            onClick={async () => {
+              await apiService.cancelJoin(room._id);
+              onRefresh();
+            }}
+            className="flex-1 rounded-xl bg-[#ff6b6b] px-4 py-3 text-sm font-bold text-white"
+          >
             Leave
           </button>
         )}
