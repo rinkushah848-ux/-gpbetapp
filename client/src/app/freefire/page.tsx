@@ -310,6 +310,11 @@ export default function FreeFirePage() {
                   <label className="text-[10px] text-[#b0b0b0] mb-1 block">Entry Fee (pts)</label>
                   <input type="number" value={newFee} onChange={(e) => setNewFee(Math.max(1, Number(e.target.value)))} className="input-field text-sm" min={1} />
                 </div>
+                <div className="bg-[#00ff88]/10 border border-[#00ff88]/30 rounded-xl p-3 text-center">
+                  <p className="text-[10px] text-[#b0b0b0]">🏆 Winner Prize</p>
+                  <p className="text-lg font-bold text-[#00ff88]">{newFee * 2} pts</p>
+                  <p className="text-[9px] text-[#b0b0b0]">Entry fee × 2 (total pool when opponent joins)</p>
+                </div>
               </div>
               <div className="flex gap-3 mt-5">
                 <button onClick={() => { setShowCreate(false); setError(''); }} className="w-full btn-secondary text-sm">Cancel</button>

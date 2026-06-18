@@ -290,8 +290,7 @@ export default function AdminPage() {
             </div>
           </div>
         )}
+        <BottomNav />
       </div>
-      <BottomNav />
-    </div>
   );
 }
