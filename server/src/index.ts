@@ -8,6 +8,8 @@ import roomRoutes from "./routes/rooms";
 import gameRoutes from "./routes/games";
 import notificationRoutes from "./routes/notifications";
 import adminRoutes from "./routes/admin";
+import Room from "./models/Room";
+import UserNotification from "./models/UserNotification";
 
 dotenv.config();
 
@@ -49,11 +51,36 @@ app.get("/api/app-version", (req, res) => {
   });
 });
 
+const ROOM_EXPIRY_MINUTES = 15;
+
+async function cleanupStaleRooms() {
+  try {
+    const cutoff = new Date(Date.now() - ROOM_EXPIRY_MINUTES * 60 * 1000);
+    const stale = await Room.find({
+      status: "active",
+      joinedBy: null,
+      createdAt: { $lt: cutoff },
+    });
+    for (const room of stale) {
+      room.status = "cancelled";
+      await room.save();
+      console.log(`⏰ Auto-cancelled stale room: ${room.name} (${room._id})`);
+    }
+  } catch (err) {
+    console.error("Cleanup error:", err);
+  }
+}
+
 // Connect to MongoDB
 mongoose
   .connect(MONGODB_URI)
   .then(() => {
     console.log("✓ Connected to MongoDB");
+
+    cleanupStaleRooms();
+    setInterval(cleanupStaleRooms, 5 * 60 * 1000);
+    console.log(`⏰ Room cleanup every 5min (expiry: ${ROOM_EXPIRY_MINUTES}min)`);
+
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`✓ Server running on http://0.0.0.0:${PORT}`);
     });
