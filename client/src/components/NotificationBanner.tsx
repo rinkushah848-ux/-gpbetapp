@@ -31,7 +31,7 @@ export default function NotificationBanner() {
       });
       const data = await res.json();
       setInactivity(data.inactivity);
-      setNotifications(data.notifications);
+      setNotifications(data.announcements || []);
     } catch {
       // ignore errors
     }
