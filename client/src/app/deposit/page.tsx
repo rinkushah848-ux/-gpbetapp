@@ -38,6 +38,9 @@ export default function DepositPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [utrNumber, setUtrNumber] = useState('');
+  const [screenshot, setScreenshot] = useState<File | null>(null);
+  const [manualLoading, setManualLoading] = useState(false);
 
 
   useEffect(() => {
@@ -116,6 +119,47 @@ export default function DepositPage() {
       setError('Connection error. Please try again.');
       setLoading(false);
     }
+  };
+
+  const handleManualDeposit = async () => {
+    if (!utrNumber.trim()) {
+      setError('Please enter your payment UTR/Reference number');
+      return;
+    }
+    if (amount < MIN_DEPOSIT || amount > MAX_DEPOSIT) {
+      setError(`Amount must be between NPR ${MIN_DEPOSIT} and NPR ${MAX_DEPOSIT}`);
+      return;
+    }
+
+    setManualLoading(true);
+    setError('');
+    setSuccessMsg('');
+
+    try {
+      const token = authService.getToken();
+      const res = await fetch(`${API_URL}/api/finance/deposit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ amount, utrNumber: utrNumber.trim() }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Failed to submit deposit');
+        setManualLoading(false);
+        return;
+      }
+
+      setSuccessMsg('Deposit request submitted! Wait for admin approval.');
+      setUtrNumber('');
+      setScreenshot(null);
+    } catch {
+      setError('Connection error. Please try again.');
+    }
+    setManualLoading(false);
   };
 
   if (authLoading) {
@@ -202,10 +246,54 @@ export default function DepositPage() {
             <div className="rounded-xl bg-[#0f0f1e] p-3 flex flex-col items-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={DEPOSIT_QR_URL} alt="eSewa QR" className="max-w-[240px] rounded-lg" />
-              <p className="mt-3 text-[11px] text-[#b0b0b0] text-center">Pay from your app using this QR, then submit UTR in eSewa success flow.</p>
+              <p className="mt-3 text-[11px] text-[#b0b0b0] text-center">Scan QR and pay via eSewa, then submit the details below.</p>
             </div>
           </div>
 
+          {/* Manual deposit: Screenshot + UTR + Submit */}
+          <div className="bg-[#13162a] rounded-2xl p-4 mb-5 border border-[#00d4ff]/10">
+            <p className="text-[#b0b0b0] text-xs uppercase tracking-[0.3em] mb-4">Submit Payment Details</p>
+
+            {/* Screenshot upload */}
+            <div className="mb-4">
+              <p className="text-[#b0b0b0] text-xs mb-2">Payment Screenshot</p>
+              <label className="flex items-center gap-3 bg-[#0f0f1e] rounded-xl px-4 py-3 cursor-pointer border border-dashed border-[#00d4ff]/30 hover:border-[#00d4ff]/60 transition-colors">
+                <svg className="w-5 h-5 text-[#00d4ff]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span className="text-sm text-[#b0b0b0]">
+                  {screenshot ? screenshot.name : 'Tap to upload screenshot'}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => setScreenshot(e.target.files?.[0] || null)}
+                />
+              </label>
+            </div>
+
+            {/* UTR / Reference number */}
+            <div className="mb-4">
+              <p className="text-[#b0b0b0] text-xs mb-2">UTR / Reference Number</p>
+              <input
+                type="text"
+                value={utrNumber}
+                onChange={(e) => { setUtrNumber(e.target.value); setError(''); }}
+                placeholder="Enter UTR number from eSewa"
+                className="input-field"
+              />
+            </div>
+
+            {/* Submit button */}
+            <button
+              onClick={handleManualDeposit}
+              disabled={manualLoading}
+              className="w-full py-4 rounded-2xl font-bold text-lg transition-all bg-[#00ff88] text-[#0f0f1e] hover:bg-opacity-80 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {manualLoading ? 'Submitting...' : 'Submit Deposit'}
+            </button>
+          </div>
 
           <button
             onClick={handlePay}
