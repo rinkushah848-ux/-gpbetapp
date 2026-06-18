@@ -18,9 +18,7 @@ export default function BottomNav() {
     authService.getMe().then(setUser).catch(() => {});
   }, []);
 
-  const allTabs = user?.role === 'admin'
-    ? [...tabs, { label: 'Admin', href: '/admin', icon: '⚙️' }]
-    : tabs;
+  const allTabs = tabs;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#0f0f1e] border-t border-[#00d4ff] border-opacity-10 backdrop-blur-md py-3 px-5 shadow-[0_-12px_30px_rgba(0,0,0,0.35)]">
