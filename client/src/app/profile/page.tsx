@@ -5,12 +5,19 @@ import { useRouter } from 'next/navigation';
 import BottomNav from '@/components/BottomNav';
 import Header from '@/components/Header';
 import authService, { User } from '@/utils/authService';
+import apiService from '@/utils/apiService';
 import { useProtectedRoute } from '@/utils/useAuth';
 
 export default function ProfilePage() {
   const router = useRouter();
   const { isLoading } = useProtectedRoute();
   const [user, setUser] = useState<User | null>(null);
+  const [redeemAmount, setRedeemAmount] = useState(30);
+  const [esewaNumber, setEsewaNumber] = useState('');
+  const [esewaScreenshot, setEsewaScreenshot] = useState('');
+  const [redeemMessage, setRedeemMessage] = useState('');
+  const [redeemError, setRedeemError] = useState('');
+  const [redeemLoading, setRedeemLoading] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -27,6 +34,44 @@ export default function ProfilePage() {
   const handleLogout = () => {
     authService.logout();
     router.push('/login');
+  };
+
+  const toBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleRedeem = async () => {
+    setRedeemError('');
+    setRedeemMessage('');
+
+    if (!esewaNumber.trim()) {
+      setRedeemError('Enter your eSewa number.');
+      return;
+    }
+    if (redeemAmount < 30 || redeemAmount > 1000) {
+      setRedeemError('Redeem amount must be between 30 and 1000 points.');
+      return;
+    }
+
+    setRedeemLoading(true);
+    try {
+      await apiService.requestWithdraw(redeemAmount, esewaNumber.trim(), esewaScreenshot);
+      setRedeemMessage('Redeem request sent.');
+      setEsewaNumber('');
+      setEsewaScreenshot('');
+      setRedeemAmount(30);
+      const data = await authService.getMe();
+      setUser(data);
+    } catch (err: any) {
+      setRedeemError(err.response?.data?.error || 'Failed to send redeem request.');
+    } finally {
+      setRedeemLoading(false);
+    }
   };
 
   if (isLoading) {
@@ -100,6 +145,79 @@ export default function ProfilePage() {
           <button onClick={handleLogout} className="w-full btn-primary">
             Logout
           </button>
+        </div>
+
+        <div className="card mt-6">
+          <div className="mb-5 flex items-center justify-between gap-4">
+            <div>
+              <p className="mb-2 text-xs uppercase tracking-[0.3em] text-[#b0b0b0]">Redeem Request</p>
+              <h2 className="text-2xl font-bold text-[#eaeaea]">Redeem to eSewa</h2>
+            </div>
+            <div className="rounded-2xl border border-[#60bb46]/30 bg-[#60bb46]/15 px-4 py-3 text-center">
+              <p className="text-xl font-black text-[#60bb46]">eSewa</p>
+              <p className="text-[10px] font-semibold text-[#9fe58f]">Wallet</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="mb-2 block text-xs font-bold text-[#b0b0b0]">Enter your eSewa number</label>
+              <input
+                value={esewaNumber}
+                onChange={(event) => setEsewaNumber(event.target.value)}
+                inputMode="numeric"
+                placeholder="98XXXXXXXX"
+                className="input-field"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-xs font-bold text-[#b0b0b0]">Enter amount</label>
+              <input
+                type="number"
+                min={30}
+                max={1000}
+                value={redeemAmount}
+                onChange={(event) => setRedeemAmount(Number(event.target.value))}
+                className="input-field"
+              />
+              <p className="mt-2 text-[11px] font-semibold text-[#7f9cb2]">Minimum 30 points, maximum 1000 points.</p>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-xs font-bold text-[#b0b0b0]">Enter your eSewa QR / add screenshot</label>
+              <label className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-[#00d4ff]/40 bg-[#13162a] px-4 py-5 text-center transition hover:border-[#00d4ff]">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={async (event) => {
+                    const file = event.target.files?.[0];
+                    if (file) setEsewaScreenshot(await toBase64(file));
+                  }}
+                />
+                <span className="mb-2 inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#00d4ff]/40 text-[#00d4ff]">
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 5v14" />
+                    <path d="M5 12h14" />
+                  </svg>
+                </span>
+                <span className="text-sm font-bold text-[#00d4ff]">Add Screenshot</span>
+              </label>
+              {esewaScreenshot && <img src={esewaScreenshot} alt="eSewa QR preview" className="mt-3 max-h-44 w-full rounded-xl object-cover" />}
+            </div>
+
+            {redeemError && <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-bold text-red-300">{redeemError}</p>}
+            {redeemMessage && <p className="rounded-xl border border-[#00ff88]/30 bg-[#00ff88]/10 px-3 py-2 text-sm font-bold text-[#00ff88]">{redeemMessage}</p>}
+
+            <button
+              onClick={handleRedeem}
+              disabled={redeemLoading}
+              className="w-full rounded-xl bg-[#60bb46] px-4 py-3 text-sm font-extrabold text-[#061306] transition hover:bg-[#7fd166] disabled:bg-[#555] disabled:text-[#aaa]"
+            >
+              {redeemLoading ? 'Sending...' : 'Redeem Request'}
+            </button>
+          </div>
         </div>
       </div>
       <BottomNav />

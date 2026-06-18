@@ -333,7 +333,10 @@ export default function AdminPage() {
                     </span>
                   </div>
                   <p className="text-[10px] text-[#b0b0b0]">Points: <span className="text-[#ffcc00] font-bold">{w.amount}</span></p>
-                  <p className="text-[10px] text-[#b0b0b0]">UPI ID: <span className="text-[#00d4ff]">{w.upiId}</span></p>
+                  <p className="text-[10px] text-[#b0b0b0]">eSewa Number: <span className="text-[#00d4ff]">{w.upiId}</span></p>
+                  {w.screenshot && (
+                    <img src={w.screenshot} alt="eSewa QR screenshot" className="mt-3 max-h-40 w-full rounded-xl object-cover" />
+                  )}
                   {w.status === 'pending' && (
                     <div className="flex gap-2 mt-3">
                       <button onClick={async () => {

@@ -3,9 +3,28 @@
 import { usePathname, useRouter } from 'next/navigation';
 
 const tabs = [
-  { label: 'Home', href: '/home', icon: 'Home' },
-  { label: 'Profile', href: '/profile', icon: 'User' },
+  { label: 'Home', href: '/home', icon: 'home' },
+  { label: 'Profile', href: '/profile', icon: 'profile' },
 ];
+
+function NavIcon({ name }: { name: string }) {
+  if (name === 'profile') {
+    return (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M20 21a8 8 0 0 0-16 0" />
+        <circle cx="12" cy="8" r="4" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="m3 11 9-8 9 8" />
+      <path d="M5 10v10h14V10" />
+      <path d="M9 20v-6h6v6" />
+    </svg>
+  );
+}
 
 export default function BottomNav() {
   const pathname = usePathname();
@@ -24,7 +43,7 @@ export default function BottomNav() {
                 isActive ? 'text-[#00ff88]' : 'text-[#b0b0b0] hover:text-[#00d4ff]'
               }`}
             >
-              <span className="text-lg">{tab.icon}</span>
+              <NavIcon name={tab.icon} />
               <span>{tab.label}</span>
             </button>
           );

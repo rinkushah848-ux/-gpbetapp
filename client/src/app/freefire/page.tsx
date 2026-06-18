@@ -517,6 +517,25 @@ function RoomCard({ room, user, myRoom, onRefresh }: { room: RoomData; user: Use
         <p className="mt-1 text-xs text-[#b0b0b0]">{room.type === 'lonewolf' ? 'Lone Wolf' : 'Team'} {room.size}</p>
       </div>
 
+      {isActive && isJoined && room.joinStatus === 'pending' && (
+        <div className="flex items-center justify-between border-b border-[#00d4ff]/10 px-4 py-2">
+          <span className="text-[10px] text-[#ffcc00] font-semibold">Awaiting creator approval...</span>
+          <button onClick={async () => { await apiService.cancelJoin(room._id); onRefresh(); }} className="rounded-lg bg-[#ff6b6b]/15 px-3 py-1.5 text-[10px] font-bold text-[#ff6b6b] transition hover:bg-[#ff6b6b] hover:text-white">
+            Cancel
+          </button>
+        </div>
+      )}
+      {isCreator && isActive && room.joinStatus === 'pending' && (
+        <div className="flex gap-2 border-b border-[#00d4ff]/10 px-4 py-2">
+          <button onClick={async () => { await apiService.acceptJoin(room._id); onRefresh(); }} className="flex-1 rounded-lg bg-[#00ff88]/15 px-3 py-2 text-[11px] font-bold text-[#00ff88] transition hover:bg-[#00ff88] hover:text-[#0f0f1e]">
+            Accept
+          </button>
+          <button onClick={async () => { await apiService.rejectJoin(room._id); onRefresh(); }} className="flex-1 rounded-lg bg-[#ff6b6b]/15 px-3 py-2 text-[11px] font-bold text-[#ff6b6b] transition hover:bg-[#ff6b6b] hover:text-[#0f0f1e]">
+            Reject
+          </button>
+        </div>
+      )}
+
       <button onClick={() => setShowItems(!showItems)} className="flex w-full items-center justify-between border-b border-[#00d4ff]/10 px-4 py-3 text-xs font-semibold text-[#b0b0b0] transition hover:text-[#eaeaea]">
         <span>Compulsory Items</span>
         <span className={`transition-transform ${showItems ? 'rotate-180' : ''}`}>v</span>
@@ -564,21 +583,6 @@ function RoomCard({ room, user, myRoom, onRefresh }: { room: RoomData; user: Use
             <span className="flex-1 rounded-xl bg-[#ffcc00]/10 px-4 py-3 text-center text-sm font-bold text-[#ffcc00]/80">
               Winning {room.fee * 2} points
             </span>
-          </>
-        )}
-        {isActive && isJoined && room.joinStatus === 'pending' && (
-          <button onClick={async () => { await apiService.cancelJoin(room._id); onRefresh(); }} className="flex-1 rounded-xl bg-[#ff6b6b]/20 px-4 py-3 text-sm font-bold text-[#ff6b6b]">
-            Cancel Request
-          </button>
-        )}
-        {isCreator && isActive && room.joinStatus === 'pending' && (
-          <>
-            <button onClick={async () => { await apiService.acceptJoin(room._id); onRefresh(); }} className="flex-1 rounded-xl bg-[#00ff88]/20 px-4 py-3 text-sm font-bold text-[#00ff88]">
-              Accept
-            </button>
-            <button onClick={async () => { await apiService.rejectJoin(room._id); onRefresh(); }} className="flex-1 rounded-xl bg-[#ff6b6b]/20 px-4 py-3 text-sm font-bold text-[#ff6b6b]">
-              Reject
-            </button>
           </>
         )}
         {isJoined && isActive && room.joinStatus === 'accepted' && (

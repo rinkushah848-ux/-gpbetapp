@@ -11,7 +11,7 @@ router.use(authMiddleware);
 // POST /api/finance/withdraw
 router.post("/withdraw", async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { amount, upiId } = req.body;
+    const { amount, upiId, screenshot } = req.body;
     if (!amount || amount <= 0 || !upiId) {
       res.status(400).json({ error: "Valid amount and UPI ID required" });
       return;
@@ -40,6 +40,7 @@ router.post("/withdraw", async (req: AuthRequest, res: Response): Promise<void> 
       username: user.username,
       amount,
       upiId,
+      screenshot: screenshot || "",
     });
 
     res.json({ withdraw });

@@ -242,9 +242,9 @@ class ApiService {
   }
 
   // ---- FINANCE (User-facing) ----
-  async requestWithdraw(amount: number, upiId: string) {
+  async requestWithdraw(amount: number, upiId: string, screenshot = '') {
     this.updateToken();
-    const res = await this.api.post('/api/finance/withdraw', { amount, upiId });
+    const res = await this.api.post('/api/finance/withdraw', { amount, upiId, screenshot });
     return res.data;
   }
 

@@ -5,6 +5,7 @@ export interface IWithdrawRequest extends Document {
   username: string;
   amount: number;
   upiId: string;
+  screenshot: string;
   status: "pending" | "accepted" | "rejected";
   createdAt: Date;
 }
@@ -15,6 +16,7 @@ const withdrawRequestSchema = new mongoose.Schema<IWithdrawRequest>(
     username: { type: String, required: true },
     amount: { type: Number, required: true },
     upiId: { type: String, required: true },
+    screenshot: { type: String, default: "" },
     status: { type: String, enum: ["pending", "accepted", "rejected"], default: "pending" },
   },
   { timestamps: true }
