@@ -485,6 +485,11 @@ function RoomCard({ room, user, myRoom, onRefresh }: { room: RoomData; user: Use
             Join: {room.fee} Points
           </button>
         )}
+        {isActive && (isCreator || isJoined) && (
+          <span className="rounded-xl border-2 border-[#0d3e5a] px-4 py-3 text-base font-extrabold text-[#0d3e5a]">
+            Entry Fee: {room.fee} Points
+          </span>
+        )}
         {isActive && isCreator && room.joinedBy && !room.roomIdPass && (
           <button onClick={() => setShowIdPass(!showIdPass)} className="rounded-xl bg-[#123865] px-5 py-4 text-base font-bold text-white">
             Add ID/Pass
