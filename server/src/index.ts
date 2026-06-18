@@ -6,6 +6,7 @@ import dns from "dns";
 import authRoutes from "./routes/auth";
 import roomRoutes from "./routes/rooms";
 import gameRoutes from "./routes/games";
+import notificationRoutes from "./routes/notifications";
 import adminRoutes from "./routes/admin";
 
 dotenv.config();
@@ -31,6 +32,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/games", gameRoutes);
+app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminRoutes);
 
 // Health check

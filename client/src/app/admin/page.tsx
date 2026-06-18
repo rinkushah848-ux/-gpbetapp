@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import BottomNav from '@/components/BottomNav';
 import Header from '@/components/Header';
+import NotificationBanner from '@/components/NotificationBanner';
 import authService, { User } from '@/utils/authService';
 import apiService, { GameData } from '@/utils/apiService';
 import { useProtectedRoute } from '@/utils/useAuth';
@@ -106,6 +107,7 @@ export default function AdminPage() {
             <p className="text-lg font-bold text-[#ffcc00]">{user?.username}</p>
           </div>
         </div>
+        <NotificationBanner />
 
         <div className="flex gap-3">
           {tabs.map(t => (

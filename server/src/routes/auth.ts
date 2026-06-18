@@ -32,6 +32,9 @@ router.post("/login", async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    user.lastActive = new Date();
+    await user.save();
+
     // Generate JWT token
     const token = jwt.sign(
       { id: user._id, username: user.username },

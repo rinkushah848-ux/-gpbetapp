@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import BottomNav from '@/components/BottomNav';
 import Header from '@/components/Header';
+import NotificationBanner from '@/components/NotificationBanner';
 import authService, { User } from '@/utils/authService';
 import { useProtectedRoute } from '@/utils/useAuth';
 
@@ -42,6 +43,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-[#0f0f1e] pb-28 px-4 pt-6">
       <div className="max-w-4xl mx-auto space-y-6">
         <Header title="Home" subtitle={`Welcome, ${user?.username || 'Gamer'}`} />
+        <NotificationBanner />
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-3xl bg-[#13162a] p-6 border border-[#00d4ff] border-opacity-10">

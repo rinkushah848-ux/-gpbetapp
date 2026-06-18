@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import BottomNav from '@/components/BottomNav';
 import Header from '@/components/Header';
+import NotificationBanner from '@/components/NotificationBanner';
 import authService, { User } from '@/utils/authService';
 import apiService, { RoomData, GameData } from '@/utils/apiService';
 import { useProtectedRoute } from '@/utils/useAuth';
@@ -137,6 +138,7 @@ export default function FreeFirePage() {
             </div>
           </div>
         </div>
+        <NotificationBanner />
 
         <div className="flex gap-3">
           {tabs.map((t) => (
