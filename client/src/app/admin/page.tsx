@@ -14,6 +14,7 @@ export default function AdminPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [tab, setTab] = useState<'reviews' | 'users' | 'transactions' | 'withdraws' | 'deposits'>('reviews');
+  const [showMenu, setShowMenu] = useState(false);
   const [pendingGames, setPendingGames] = useState<GameData[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -155,6 +156,24 @@ export default function AdminPage() {
               {t.icon} {t.label}
             </button>
           ))}
+          <div className="relative">
+            <button onClick={() => setShowMenu(!showMenu)} className="rounded-xl bg-[#16213e] px-4 py-3 text-sm font-bold text-[#b0b0b0] hover:bg-[#ffcc00] hover:text-[#0f0f1e] transition">
+              ...
+            </button>
+            {showMenu && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+                <div className="absolute right-0 top-12 z-50 w-48 rounded-xl bg-[#1a1c36] border border-[#ffcc00]/20 shadow-xl overflow-hidden">
+                  {tabs.map(t => (
+                    <button key={t.key} onClick={() => { setTab(t.key); setShowMenu(false); }}
+                      className={`w-full text-left px-4 py-3 text-xs font-bold transition ${tab === t.key ? 'bg-[#ffcc00] text-[#0f0f1e]' : 'text-[#b0b0b0] hover:bg-[#16213e]'}`}>
+                      {t.icon} {t.label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Reviews Tab */}

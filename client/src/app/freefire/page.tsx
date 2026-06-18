@@ -458,31 +458,16 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
         <p className="text-xs text-[#b0b0b0] mt-1">{room.type === 'lonewolf' ? 'Lone Wolf' : 'Team'} {room.size}</p>
       </div>
 
-      {/* ID/Pass Section */}
-      {isActive && (isCreator || isJoined) && (
+      {/* ID/Pass Display (only after added) */}
+      {isActive && room.roomIdPass && (isCreator || isJoined) && (
         <div className="px-4 py-2 border-b border-[#00d4ff]/10 bg-[#0f1a2e]">
           <div className="flex items-center justify-between">
             <p className="text-[10px] text-[#00d4ff] font-semibold">🔑 Room ID & Pass</p>
-            {!room.roomIdPass ? (
-              <button onClick={() => setShowIdPass(!showIdPass)} className="text-[10px] text-[#ffcc00] hover:text-[#ffff00]">
-                + Add ID/Pass
-              </button>
-            ) : (
-              <div className="text-right">
-                <p className="text-[10px] text-[#00ff88]">ID: {room.roomIdPass}</p>
-                {room.roomPass && <p className="text-[10px] text-[#00ff88]">Pass: {room.roomPass}</p>}
-              </div>
-            )}
-          </div>
-          {showIdPass && isCreator && (
-            <div className="flex flex-col gap-2 mt-2">
-              <input type="text" value={roomIdInput} onChange={e => setRoomIdInput(e.target.value)}
-                className="w-full bg-[#16213e] rounded-lg px-3 py-1.5 text-xs text-[#eaeaea] outline-none" placeholder="Room ID" />
-              <input type="text" value={roomPassInput} onChange={e => setRoomPassInput(e.target.value)}
-                className="w-full bg-[#16213e] rounded-lg px-3 py-1.5 text-xs text-[#eaeaea] outline-none" placeholder="Room Password (optional)" />
-              <button onClick={handleGiveIdPass} className="bg-[#00d4ff] text-[#0f0f1e] rounded-lg px-3 py-1.5 text-xs font-bold">Done</button>
+            <div className="text-right">
+              <p className="text-[10px] text-[#00ff88]">ID: {room.roomIdPass}</p>
+              {room.roomPass && <p className="text-[10px] text-[#00ff88]">Pass: {room.roomPass}</p>}
             </div>
-          )}
+          </div>
         </div>
       )}
 
@@ -616,6 +601,11 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
             Join • Entry {room.fee} pts
           </button>
         )}
+        {isCreator && isActive && room.joinedBy && !room.roomIdPass && (
+          <button onClick={() => setShowIdPass(!showIdPass)} className="flex-1 rounded-xl bg-[#ffcc00]/20 px-4 py-3 text-sm font-bold text-[#ffcc00] transition hover:bg-[#ffcc00] hover:text-[#0f0f1e]">
+            🔑 Add ID/Pass
+          </button>
+        )}
         {!isMyRoom && isActive && room.joinedBy && room.joinStatus === 'accepted' && isJoined && (
           <button onClick={async () => { try { await apiService.cancelJoin(room._id); onRefresh(); } catch (err: any) { alert(err.response?.data?.error || 'Failed to leave'); } }} className="flex-1 rounded-xl bg-[#ff6b6b] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#ff6b6b]/80">
             Leave Room
@@ -627,6 +617,15 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
           </button>
         )}
       </div>
+      {showIdPass && isCreator && (
+        <div className="px-4 pb-4 space-y-2 border-t border-[#ffcc00]/20 pt-3">
+          <input type="text" value={roomIdInput} onChange={e => setRoomIdInput(e.target.value)}
+            className="w-full bg-[#16213e] rounded-lg px-3 py-2 text-xs text-[#eaeaea] outline-none" placeholder="Room ID" />
+          <input type="text" value={roomPassInput} onChange={e => setRoomPassInput(e.target.value)}
+            className="w-full bg-[#16213e] rounded-lg px-3 py-2 text-xs text-[#eaeaea] outline-none" placeholder="Room Password (optional)" />
+          <button onClick={handleGiveIdPass} className="w-full bg-[#00d4ff] text-[#0f0f1e] rounded-lg py-2 text-xs font-bold">Done</button>
+        </div>
+      )}
       {showSS && (
         <div className="px-4 pb-4 space-y-2 border-t border-[#00d4ff]/10 pt-3">
           <input type="file" accept="image/*" onChange={async (e) => {
