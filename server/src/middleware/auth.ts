@@ -17,7 +17,8 @@ export const authMiddleware = (
   next: NextFunction
 ): void => {
   try {
-    const token = req.headers.authorization?.split(" ")[1];
+    const authHeader = req.headers.authorization;
+    const token = typeof authHeader === "string" ? authHeader.split(" ")[1] : undefined;
 
     if (!token) {
       res.status(401).json({ error: "No token provided" });
