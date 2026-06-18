@@ -582,9 +582,15 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
               }} className="text-[10px] text-[#b0b0b0]" />
               {screenshot && <img src={screenshot} alt="preview" className="max-h-28 rounded-lg" />}
               <input type="text" value={ssMsg} onChange={e => setSsMsg(e.target.value)} placeholder="Add a message..." className="w-full bg-[#16213e] rounded-lg px-3 py-2 text-xs text-[#eaeaea] outline-none" />
-              <button onClick={handleUploadSS} className="w-full bg-[#00ff88] text-[#0f0f1e] rounded-lg py-2 text-xs font-bold">
-                Upload Screenshot
-              </button>
+              {screenshot && ssMsg ? (
+                <button onClick={handleUploadSS} className="w-full bg-[#00ff88] text-[#0f0f1e] rounded-lg py-2 text-xs font-bold">
+                  → Submit Result
+                </button>
+              ) : (
+                <div className="w-full bg-[#555]/20 text-[#555] rounded-lg py-2 text-xs font-bold text-center">
+                  {screenshot ? 'Add a message...' : ssMsg ? 'Add a screenshot...' : 'Select screenshot & add message'}
+                </div>
+              )}
             </div>
           )}
         </div>
