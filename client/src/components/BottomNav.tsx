@@ -6,9 +6,7 @@ import authService, { User } from '@/utils/authService';
 
 const tabs = [
   { label: 'Home', href: '/home', icon: '🏠' },
-  { label: 'Free Fire', href: '/freefire', icon: '🔥' },
   { label: 'Profile', href: '/profile', icon: '👤' },
-  { label: 'Tournaments', href: '/tournaments', icon: '🏆' },
 ];
 
 export default function BottomNav() {
