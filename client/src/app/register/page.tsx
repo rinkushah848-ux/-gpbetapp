@@ -99,7 +99,7 @@ export default function RegisterPage() {
 
             <div className="mt-10 grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-[#0f1225] p-4">
-                <p className="text-2xl font-black text-[#00ff88]">100</p>
+                <p className="text-2xl font-black text-[#00ff88]">0</p>
                 <p className="mt-1 text-xs text-[#b0b0b0]">Start points</p>
               </div>
               <div className="rounded-xl bg-[#0f1225] p-4">
