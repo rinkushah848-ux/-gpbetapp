@@ -21,13 +21,17 @@ export default function FreeFirePage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const init = async () => {
       try {
         const data = await authService.getMe();
         setUser(data);
+        const rms = await apiService.getRooms();
+        setRooms(rms);
+        const mine = await apiService.getMyRoom();
+        setMyRoom(mine);
       } catch (err) { console.error(err); }
     };
-    fetchUser();
+    init();
   }, []);
 
   useEffect(() => {
@@ -38,11 +42,8 @@ export default function FreeFirePage() {
         setRooms(rms);
         const mine = await apiService.getMyRoom();
         setMyRoom(mine);
-        const data = await authService.getMe();
-        setUser(data);
       } catch (err) { console.error(err); }
     };
-    load();
     const iv = setInterval(load, 5000);
     return () => clearInterval(iv);
   }, [user]);
@@ -397,8 +398,12 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
         <span className="text-[10px] text-[#00d4ff]">Fee: {room.fee}pts</span>
         {isCreator && isActive && (
           <button onClick={async () => {
-            await apiService.cancelRoom(room._id);
-            onRefresh();
+            try {
+              await apiService.cancelRoom(room._id);
+              onRefresh();
+            } catch (err: any) {
+              alert(err.response?.data?.error || 'Failed to cancel');
+            }
           }} className="ml-1 text-sm text-[#ff6b6b] hover:text-[#ff0000] transition" title="Cancel Room">✕</button>
         )}
       </div>
@@ -485,9 +490,9 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
                   <>
                     <p className="text-xs text-[#ffcc00]">{room.joinedByName} wants to join</p>
                     <div className="flex gap-2 mt-1">
-                      <button onClick={async () => { await apiService.acceptJoin(room._id); onRefresh(); }}
+                      <button onClick={async () => { try { await apiService.acceptJoin(room._id); onRefresh(); } catch (err: any) { alert(err.response?.data?.error || 'Failed to accept'); } }}
                         className="text-[10px] bg-[#00ff88] text-[#0f0f1e] px-2 py-0.5 rounded font-bold">Accept</button>
-                      <button onClick={async () => { await apiService.rejectJoin(room._id); onRefresh(); }}
+                      <button onClick={async () => { try { await apiService.rejectJoin(room._id); onRefresh(); } catch (err: any) { alert(err.response?.data?.error || 'Failed to reject'); } }}
                         className="text-[10px] bg-[#ff6b6b] text-white px-2 py-0.5 rounded font-bold">Reject</button>
                     </div>
                   </>
@@ -608,12 +613,16 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
 
       {/* Buttons */}
       <div className="flex gap-3 p-4">
-        <button className={`flex-1 rounded-xl px-4 py-3 text-sm font-bold transition ${isFinished || isCancelled ? 'bg-[#555]/20 text-[#555]' : 'bg-[#00ff88]/15 text-[#00ff88] hover:bg-[#00ff88] hover:text-[#0f0f1e]'}`} disabled={isFinished || isCancelled}>
-          🏆 Winner {room.fee * 2} pts
-        </button>
-        {isMyRoom && isActive && (
-          <button className="flex-1 rounded-xl bg-[#00d4ff]/15 px-4 py-3 text-sm font-bold text-[#00d4ff] transition hover:bg-[#00d4ff] hover:text-[#0f0f1e]">
-            Entry Fee {room.fee} pts
+        {isActive && (isCreator || isJoined) && (
+          <button onClick={async () => {
+            try {
+              await apiService.finishRoom(room._id);
+              onRefresh();
+            } catch (err: any) {
+              alert(err.response?.data?.error || 'Failed to finish room');
+            }
+          }} className="flex-1 rounded-xl bg-[#00ff88]/15 px-4 py-3 text-sm font-bold text-[#00ff88] transition hover:bg-[#00ff88] hover:text-[#0f0f1e]">
+            🏆 Finish Match
           </button>
         )}
         {!isMyRoom && isActive && !room.joinedBy && (
@@ -625,7 +634,7 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
               alert(err.response?.data?.error || 'Failed to join');
             }
           }} className="flex-1 rounded-xl bg-[#00d4ff] px-4 py-3 text-sm font-bold text-[#0f0f1e] transition hover:bg-[#00d4ff]/80">
-            Join Room
+            Join Room • {room.fee} pts
           </button>
         )}
         {!isMyRoom && isActive && room.joinedBy && room.joinStatus === 'accepted' && isJoined && (
@@ -636,15 +645,6 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
       </div>
     </div>
   );
-}
-
-function toBase64(file: File): Promise<string> {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result as string);
-    r.onerror = rej;
-    r.readAsDataURL(file);
-  });
 }
 
 /* ───────── Tournament Section ───────── */

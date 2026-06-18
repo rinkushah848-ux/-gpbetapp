@@ -29,7 +29,7 @@ export default function LoginPage() {
       }
 
       await authService.login({
-        username: username.trim(),
+        username: username.trim().toLowerCase(),
         password: password.trim(),
       });
 

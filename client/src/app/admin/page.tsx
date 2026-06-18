@@ -67,7 +67,18 @@ export default function AdminPage() {
     );
   }
 
-  if (user && user.role !== 'admin') {
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[#0f0f1e] flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-[#00d4ff]/30 border-t-[#00d4ff] rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-sm text-[#b0b0b0]">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (user.role !== 'admin') {
     return (
       <div className="min-h-screen bg-[#0f0f1e] flex items-center justify-center p-4">
         <div className="text-center">

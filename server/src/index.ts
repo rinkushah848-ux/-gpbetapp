@@ -38,6 +38,15 @@ app.get("/health", (req, res) => {
   res.json({ status: "Server is running" });
 });
 
+// App version (for update checking)
+app.get("/api/app-version", (req, res) => {
+  res.json({
+    latestVersion: process.env.LATEST_APP_VERSION || "1.0.0",
+    downloadUrl: process.env.APP_DOWNLOAD_URL || "https://gpbetapp.vercel.app",
+    forceUpdate: true,
+  });
+});
+
 // Connect to MongoDB
 mongoose
   .connect(MONGODB_URI)
