@@ -442,7 +442,7 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
       {/* Winner Prize & Entry Fee */}
       <div className="grid grid-cols-2 gap-3 px-4 py-3 border-b border-[#00d4ff]/10">
         <div className="bg-[#1a1c36] rounded-xl p-3 text-center">
-          <p className="text-[9px] text-[#b0b0b0] mb-1">🏆 WINNER PRIZE</p>
+          <p className="text-[9px] text-[#b0b0b0] mb-1">            🏆 WINNINGS</p>
           <p className="text-lg font-bold text-[#ffcc00]">{room.fee * 2} pts</p>
         </div>
         <div className="bg-[#1a1c36] rounded-xl p-3 text-center">
