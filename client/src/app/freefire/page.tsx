@@ -513,17 +513,6 @@ function RoomCard({ room, user, myRoom, onRefresh }: { room: RoomData; user: Use
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 border-b border-[#00d4ff]/10 px-4 py-3">
-        <div className="rounded-xl bg-[#1a1c36] p-3 text-center">
-          <p className="mb-1 text-[9px] text-[#b0b0b0]">WINNINGS</p>
-          <p className="text-lg font-bold text-[#ffcc00]">{room.fee * 2} points</p>
-        </div>
-        <div className="rounded-xl bg-[#1a1c36] p-3 text-center">
-          <p className="mb-1 text-[9px] text-[#b0b0b0]">ENTRY FEE</p>
-          <p className="text-lg font-bold text-[#00ff88]">{room.fee} points</p>
-        </div>
-      </div>
-
       <div className="border-b border-[#00d4ff]/10 p-4 text-center">
         <p className="text-xs text-[#b0b0b0]">Create by</p>
         <p className="text-lg font-bold text-white">{room.creator?.username}</p>
@@ -552,35 +541,59 @@ function RoomCard({ room, user, myRoom, onRefresh }: { room: RoomData; user: Use
         </div>
       )}
 
-      {isActive && room.roomIdPass && (isCreator || isJoined) && (
+      {isActive && room.roomIdPass && isCreator && (
         <div className="border-b border-[#00d4ff]/10 bg-[#0f1a2e] px-4 py-2">
           <p className="text-[10px] text-[#00ff88]">ID: {room.roomIdPass}{room.roomPass ? ` | Pass: ${room.roomPass}` : ''}</p>
           {!showSS && (
             <button onClick={() => setShowSS(true)} className="mt-2 w-full rounded-lg bg-[#00ff88]/15 px-4 py-2 text-xs font-bold text-[#00ff88] transition hover:bg-[#00ff88] hover:text-[#0f0f1e]">
-              📸 Result
+              Result
             </button>
           )}
         </div>
       )}
 
-      <div className="flex gap-3 p-4">
+      <div className="flex flex-wrap gap-3 p-4">
         {isActive && !isMyRoom && !isJoined && (
           <button onClick={async () => { await apiService.joinRoom(room._id); onRefresh(); }} className="flex-1 rounded-xl bg-[#00d4ff] px-4 py-3 text-sm font-bold text-[#0f0f1e]">
             Join : {room.fee} points
           </button>
         )}
         {isActive && (isJoined || isCreator) && (
-          <span className="flex-1 rounded-xl bg-[#00d4ff]/10 px-4 py-3 text-center text-sm font-bold text-[#00d4ff]/60">
-            Entry {room.fee} points
-          </span>
+          <>
+            <span className="flex-1 rounded-xl bg-[#00d4ff]/10 px-4 py-3 text-center text-sm font-bold text-[#00d4ff]/60">
+              Entry {room.fee} points
+            </span>
+            <span className="flex-1 rounded-xl bg-[#ffcc00]/10 px-4 py-3 text-center text-sm font-bold text-[#ffcc00]/80">
+              Winning {room.fee * 2} points
+            </span>
+          </>
         )}
-        {isCreator && isActive && room.joinedBy && !room.roomIdPass && (
+        {isActive && isJoined && room.joinStatus === 'pending' && (
+          <button onClick={async () => { await apiService.cancelJoin(room._id); onRefresh(); }} className="flex-1 rounded-xl bg-[#ff6b6b]/20 px-4 py-3 text-sm font-bold text-[#ff6b6b]">
+            Cancel Request
+          </button>
+        )}
+        {isCreator && isActive && room.joinStatus === 'pending' && (
+          <>
+            <button onClick={async () => { await apiService.acceptJoin(room._id); onRefresh(); }} className="flex-1 rounded-xl bg-[#00ff88]/20 px-4 py-3 text-sm font-bold text-[#00ff88]">
+              Accept
+            </button>
+            <button onClick={async () => { await apiService.rejectJoin(room._id); onRefresh(); }} className="flex-1 rounded-xl bg-[#ff6b6b]/20 px-4 py-3 text-sm font-bold text-[#ff6b6b]">
+              Reject
+            </button>
+          </>
+        )}
+        {isJoined && isActive && room.joinStatus === 'accepted' && (
+          <button onClick={async () => { await apiService.cancelJoin(room._id); onRefresh(); }} className="flex-1 rounded-xl bg-[#ff6b6b] px-4 py-3 text-sm font-bold text-white">
+            Leave
+          </button>
+        )}
+        {isCreator && isActive && room.joinedBy && room.joinStatus === 'accepted' && !room.roomIdPass && (
           <button onClick={() => setShowIdPass(!showIdPass)} className="flex-1 rounded-xl bg-[#ffcc00]/20 px-4 py-3 text-sm font-bold text-[#ffcc00]">
             Add ID/Pass
           </button>
         )}
       </div>
-
       {showIdPass && isCreator && (
         <div className="space-y-2 border-t border-[#ffcc00]/20 px-4 pb-4 pt-3">
           <input value={roomIdInput} onChange={(e) => setRoomIdInput(e.target.value)} className="w-full rounded-lg bg-[#16213e] px-3 py-2 text-xs text-[#eaeaea] outline-none" placeholder="Room ID" />
