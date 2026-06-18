@@ -86,7 +86,7 @@ export default function AdminPage() {
     );
   }
 
-  if (user.role !== 'admin') {
+  if (user.role !== 'admin' || user.username !== 'gpbetadmin') {
     return (
       <div className="min-h-screen bg-[#0f0f1e] flex items-center justify-center p-4">
         <div className="w-full max-w-sm rounded-3xl border border-[#ffcc00]/20 bg-[#13162a] p-6 text-center shadow-2xl">
