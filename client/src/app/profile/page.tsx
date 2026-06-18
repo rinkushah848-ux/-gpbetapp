@@ -65,6 +65,12 @@ export default function ProfilePage() {
             <div className="bg-[#13162a] rounded-3xl p-5 border border-[#00d4ff] border-opacity-10">
               <p className="text-[#b0b0b0] text-xs uppercase tracking-[0.3em] mb-2">Points Balance</p>
               <p className="text-3xl font-bold text-[#00ff88]">{user?.points ?? 0}</p>
+              <button
+                onClick={() => router.push('/deposit')}
+                className="mt-3 w-full rounded-xl bg-[#00d4ff] bg-opacity-20 text-[#00d4ff] px-4 py-2 text-sm font-bold hover:bg-[#00d4ff] hover:text-[#0f0f1e] transition"
+              >
+                + Deposit
+              </button>
             </div>
             <div className="bg-[#13162a] rounded-3xl p-5 border border-[#ff006e] border-opacity-10">
               <p className="text-[#b0b0b0] text-xs uppercase tracking-[0.3em] mb-2">Game UID</p>

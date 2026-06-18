@@ -126,7 +126,7 @@ export default function FreeFirePage() {
       const room = await apiService.createRoom({
         name: newName.trim() || `${user?.username || 'Player'}'s room`,
         fee: newFee,
-        type: newType,
+        type: newType === 'custom' ? 'team' : newType,
         size: newSize,
         headshot: newHS,
         rounds: newRounds,
@@ -319,26 +319,24 @@ export default function FreeFirePage() {
                 <CreateChoice active={false}>Opponent</CreateChoice>
               </CreateGroup>
 
-              <div className="mb-5 rounded-md bg-[#f3f3f3] px-4 py-4 text-center">
-                <p className="mb-4 font-extrabold text-[#c92b2b] underline">ⓘ Please enter your Free Fire name here.</p>
-                <p className="font-extrabold text-[#c92b2b]">⚠ Any kinds of hackers and panel users will be banned permanently from this app.</p>
+              <div className="mb-5 rounded-md border border-red-500/30 bg-[#1a1c36] px-4 py-4 text-center">
+                <p className="font-extrabold text-red-300">⚠ Any kinds of hackers and panel users will be banned permanently from this app.</p>
               </div>
 
-              <div className="mb-5 rounded-md bg-white px-3 py-4 shadow-sm">
+              <div className="mb-5 rounded-md border border-[#00d4ff]/20 bg-[#12142c] px-3 py-4 shadow-sm">
                 <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3">
                   <input
                     value={newName}
                     onChange={(event) => setNewName(event.target.value)}
                     placeholder="0"
-                    className="min-w-0 border-b border-[#9aa9b1] bg-transparent py-2 text-lg outline-none"
+                    className="min-w-0 border-b border-[#00d4ff]/40 bg-transparent py-2 text-lg text-[#eaeaea] outline-none placeholder:text-[#7f8c95]"
                   />
-                  <button onClick={() => setNewFee(Math.max(1, newFee - 5))} className="h-12 w-12 rounded-full border-2 border-black text-3xl leading-none">−</button>
-                  <button onClick={() => setNewFee(newFee + 5)} className="h-12 w-12 rounded-full border-2 border-black text-3xl leading-none">+</button>
+                  <button onClick={() => setNewFee(Math.max(1, newFee - 5))} className="h-12 w-12 rounded-full border-2 border-[#eaeaea] text-3xl leading-none text-[#eaeaea]">−</button>
+                  <button onClick={() => setNewFee(newFee + 5)} className="h-12 w-12 rounded-full border-2 border-[#eaeaea] text-3xl leading-none text-[#eaeaea]">+</button>
                   <button onClick={handleCreate} className="rounded-full bg-[#45b84e] px-6 py-3 text-lg font-extrabold text-white shadow">
                     Create
                   </button>
                 </div>
-                <p className="mt-2 font-bold">Potential winnings: {(newFee + 10).toFixed(1)} Points</p>
                 <p className="mt-4 font-semibold italic text-[#df3b3b]">Create your own match.</p>
               </div>
 

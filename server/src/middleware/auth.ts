@@ -5,6 +5,7 @@ export interface AuthRequest {
   headers: Record<string, string | string[] | undefined>;
   body: any;
   params: Record<string, string>;
+  query: Record<string, any>;
   user?: {
     id: string;
     username: string;

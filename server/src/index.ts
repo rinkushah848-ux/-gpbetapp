@@ -10,6 +10,7 @@ import notificationRoutes from "./routes/notifications";
 import pushRoutes from "./routes/push";
 import adminRoutes from "./routes/admin";
 import financeRoutes from "./routes/finance";
+import esewaRoutes from "./routes/esewa";
 import Room from "./models/Room";
 import UserNotification from "./models/UserNotification";
 import { sendPushToUser } from "./routes/push";
@@ -41,6 +42,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/push", pushRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/finance", financeRoutes);
+app.use("/api/esewa", esewaRoutes);
 
 // Health check
 app.get("/health", (req, res) => {
