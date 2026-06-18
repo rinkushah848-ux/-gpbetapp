@@ -473,34 +473,31 @@ function RoomCard({ room, user, myRoom, onRefresh }: { room: RoomData; user: Use
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3 border-t border-[#aebbc3] px-4 py-4">
-        <div className="rounded-xl border-2 border-[#0d3e5a] px-4 py-3 text-center text-base font-extrabold text-[#0d3e5a]">
-          Entry Fee: {room.fee} Points
-        </div>
-        <div className="rounded-xl border-2 border-[#0d3e5a] px-4 py-3 text-center text-base font-extrabold text-[#0d3e5a]">
-          Winnings: {room.fee + 10} Points
-        </div>
+      <div className="flex items-center justify-between gap-3 border-t border-[#aebbc3] px-4 py-4">
         {isActive && !isMyRoom && !isJoined && (
           <button
             onClick={async () => {
               await apiService.joinRoom(room._id);
               onRefresh();
             }}
-            className="col-span-2 rounded-xl bg-[#45b84e] px-6 py-4 text-lg font-extrabold text-white"
+            className="rounded-xl bg-[#45b84e] px-6 py-4 text-lg font-extrabold text-white"
           >
             Join: {room.fee} Points
           </button>
         )}
         {isActive && isCreator && room.joinedBy && !room.roomIdPass && (
-          <button onClick={() => setShowIdPass(!showIdPass)} className="col-span-2 rounded-xl bg-[#123865] px-5 py-4 text-base font-bold text-white">
+          <button onClick={() => setShowIdPass(!showIdPass)} className="rounded-xl bg-[#123865] px-5 py-4 text-base font-bold text-white">
             Add ID/Pass
           </button>
         )}
         {isActive && room.roomIdPass && (isCreator || isJoined) && !showSS && (
-          <button onClick={() => setShowSS(true)} className="col-span-2 rounded-xl bg-[#45b84e] px-5 py-4 text-base font-bold text-white">
+          <button onClick={() => setShowSS(true)} className="rounded-xl bg-[#45b84e] px-5 py-4 text-base font-bold text-white">
             Result
           </button>
         )}
+        <div className="rounded-xl border-2 border-[#0d3e5a] px-4 py-3 text-center text-base font-extrabold text-[#0d3e5a]">
+          Winnings: {room.fee + 10} Points
+        </div>
       </div>
 
       {showIdPass && isCreator && (
