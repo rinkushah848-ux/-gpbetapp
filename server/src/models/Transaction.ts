@@ -5,7 +5,7 @@ const transactionSchema = new mongoose.Schema(
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     type: {
       type: String,
-      enum: ["room_create", "room_join", "game_win", "admin_credit", "admin_debit"],
+      enum: ["room_create", "room_join", "game_win", "admin_credit", "admin_debit", "withdraw", "deposit"],
       required: true,
     },
     amount: { type: Number, required: true },

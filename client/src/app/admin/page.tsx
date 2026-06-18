@@ -13,7 +13,7 @@ export default function AdminPage() {
   const { isLoading } = useProtectedRoute();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [tab, setTab] = useState<'reviews' | 'users' | 'transactions'>('reviews');
+  const [tab, setTab] = useState<'reviews' | 'users' | 'transactions' | 'withdraws' | 'deposits'>('reviews');
   const [pendingGames, setPendingGames] = useState<GameData[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -25,6 +25,10 @@ export default function AdminPage() {
   const [adminPass, setAdminPass] = useState('');
   const [adminError, setAdminError] = useState('');
   const [adminLoading, setAdminLoading] = useState(false);
+  const [withdraws, setWithdraws] = useState<any[]>([]);
+  const [deposits, setDeposits] = useState<any[]>([]);
+  const [banModal, setBanModal] = useState<{ userId: string; username: string } | null>(null);
+  const [banReason, setBanReason] = useState('');
 
   useEffect(() => {
     authService.getMe().then(setUser).catch(console.error);
@@ -35,6 +39,8 @@ export default function AdminPage() {
     apiService.getPendingReviews().then(setPendingGames).catch(console.error);
     apiService.getAdminUsers().then(setUsers).catch(console.error);
     apiService.getTransactions().then(setTransactions).catch(console.error);
+    apiService.getAdminWithdraws().then(setWithdraws).catch(console.error);
+    apiService.getAdminDeposits().then(setDeposits).catch(console.error);
   }, [user]);
 
   const handleApprove = async (gameId: string) => {
@@ -125,6 +131,8 @@ export default function AdminPage() {
     { key: 'reviews' as const, label: `Reviews (${pendingGames.length})`, icon: '📋' },
     { key: 'users' as const, label: 'Users', icon: '👥' },
     { key: 'transactions' as const, label: 'Transactions', icon: '💰' },
+    { key: 'withdraws' as const, label: `Withdraw (${withdraws.filter(w => w.status === 'pending').length})`, icon: '💸' },
+    { key: 'deposits' as const, label: `Deposit (${deposits.filter(d => d.status === 'pending').length})`, icon: '📥' },
   ];
 
   return (
@@ -209,16 +217,34 @@ export default function AdminPage() {
         {tab === 'users' && (
           <section className="space-y-3">
             {users.map(u => (
-              <div key={u._id} className="rounded-2xl border border-[#00d4ff]/10 bg-[#13162a] p-4 flex items-center justify-between">
+              <div key={u._id} className={`rounded-2xl border ${u.isBanned ? 'border-[#ff4444]/30' : 'border-[#00d4ff]/10'} bg-[#13162a] p-4 flex items-center justify-between`}>
                 <div>
-                  <p className="text-sm font-bold text-[#eaeaea]">{u.username}</p>
+                  <p className="text-sm font-bold text-[#eaeaea]">{u.username} {u.isBanned && <span className="text-[10px] text-[#ff4444]">🚫 Banned</span>}</p>
                   <p className="text-[10px] text-[#b0b0b0]">UID: {u.uid} | Role: {u.role}</p>
                   <p className="text-xs text-[#00ff88] font-bold">{u.points} pts</p>
+                  {u.isBanned && u.banReason && <p className="text-[9px] text-[#ff4444] mt-1">Reason: {u.banReason}</p>}
                 </div>
-                <button onClick={() => setCreditModal({ userId: u._id, username: u.username })}
-                  className="bg-[#ffcc00]/20 text-[#ffcc00] rounded-xl px-3 py-2 text-xs font-bold hover:bg-[#ffcc00] hover:text-[#0f0f1e] transition">
-                  💰 Credit
-                </button>
+                <div className="flex gap-2">
+                  {u.isBanned ? (
+                    <button onClick={async () => {
+                      if (!confirm(`Unban ${u.username}?`)) return;
+                      await apiService.adminUnbanUser(u._id);
+                      const us = await apiService.getAdminUsers();
+                      setUsers(us);
+                    }} className="bg-[#00ff88]/20 text-[#00ff88] rounded-xl px-3 py-2 text-xs font-bold hover:bg-[#00ff88] hover:text-[#0f0f1e] transition">
+                      ✅ Unban
+                    </button>
+                  ) : (
+                    <button onClick={() => setBanModal({ userId: u._id, username: u.username })}
+                      className="bg-[#ff4444]/20 text-[#ff4444] rounded-xl px-3 py-2 text-xs font-bold hover:bg-[#ff4444] hover:text-white transition">
+                      🚫 Ban
+                    </button>
+                  )}
+                  <button onClick={() => setCreditModal({ userId: u._id, username: u.username })}
+                    className="bg-[#ffcc00]/20 text-[#ffcc00] rounded-xl px-3 py-2 text-xs font-bold hover:bg-[#ffcc00] hover:text-[#0f0f1e] transition">
+                    💰 Credit
+                  </button>
+                </div>
               </div>
             ))}
             {users.length === 0 && (
@@ -269,6 +295,125 @@ export default function AdminPage() {
               </div>
             )}
           </section>
+        )}
+
+        {/* Withdraw Tab */}
+        {tab === 'withdraws' && (
+          <section className="space-y-3">
+            {withdraws.length === 0 ? (
+              <div className="rounded-3xl border border-[#00d4ff]/10 bg-[#13162a] p-8 text-center">
+                <p className="text-[#b0b0b0] text-sm">No withdraw requests.</p>
+              </div>
+            ) : (
+              withdraws.map(w => (
+                <div key={w._id} className={`rounded-2xl border ${w.status === 'pending' ? 'border-[#ffcc00]/30' : w.status === 'accepted' ? 'border-[#00ff88]/30' : 'border-[#ff4444]/30'} bg-[#13162a] p-4`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-bold text-[#eaeaea]">{w.username}</p>
+                    <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${w.status === 'pending' ? 'bg-[#ffcc00]/20 text-[#ffcc00]' : w.status === 'accepted' ? 'bg-[#00ff88]/20 text-[#00ff88]' : 'bg-[#ff4444]/20 text-[#ff4444]'}`}>
+                      {w.status.toUpperCase()}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-[#b0b0b0]">Points: <span className="text-[#ffcc00] font-bold">{w.amount}</span></p>
+                  <p className="text-[10px] text-[#b0b0b0]">UPI ID: <span className="text-[#00d4ff]">{w.upiId}</span></p>
+                  {w.status === 'pending' && (
+                    <div className="flex gap-2 mt-3">
+                      <button onClick={async () => {
+                        try {
+                          await apiService.acceptWithdraw(w._id);
+                          const ws = await apiService.getAdminWithdraws();
+                          setWithdraws(ws);
+                        } catch (err: any) { alert(err.response?.data?.error || 'Failed'); }
+                      }} className="flex-1 bg-[#00ff88] text-[#0f0f1e] rounded-xl py-2 text-xs font-bold hover:bg-[#00ff88]/80">
+                        ✅ Accept
+                      </button>
+                      <button onClick={async () => {
+                        try {
+                          await apiService.rejectWithdraw(w._id);
+                          const ws = await apiService.getAdminWithdraws();
+                          setWithdraws(ws);
+                        } catch (err: any) { alert(err.response?.data?.error || 'Failed'); }
+                      }} className="flex-1 bg-[#ff4444] text-white rounded-xl py-2 text-xs font-bold hover:bg-[#ff4444]/80">
+                        ❌ Reject
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </section>
+        )}
+
+        {/* Deposit Tab */}
+        {tab === 'deposits' && (
+          <section className="space-y-3">
+            {deposits.length === 0 ? (
+              <div className="rounded-3xl border border-[#00d4ff]/10 bg-[#13162a] p-8 text-center">
+                <p className="text-[#b0b0b0] text-sm">No deposit requests.</p>
+              </div>
+            ) : (
+              deposits.map(d => (
+                <div key={d._id} className={`rounded-2xl border ${d.status === 'pending' ? 'border-[#ffcc00]/30' : d.status === 'approved' ? 'border-[#00ff88]/30' : 'border-[#ff4444]/30'} bg-[#13162a] p-4`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-bold text-[#eaeaea]">{d.username}</p>
+                    <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${d.status === 'pending' ? 'bg-[#ffcc00]/20 text-[#ffcc00]' : d.status === 'approved' ? 'bg-[#00ff88]/20 text-[#00ff88]' : 'bg-[#ff4444]/20 text-[#ff4444]'}`}>
+                      {d.status.toUpperCase()}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-[#b0b0b0]">Amount: <span className="text-[#00ff88] font-bold">{d.amount} pts</span></p>
+                  <p className="text-[10px] text-[#b0b0b0]">UTR: <span className="text-[#00d4ff]">{d.utrNumber}</span></p>
+                  {d.status === 'pending' && (
+                    <div className="flex gap-2 mt-3">
+                      <button onClick={async () => {
+                        try {
+                          await apiService.approveDeposit(d._id);
+                          const ds = await apiService.getAdminDeposits();
+                          setDeposits(ds);
+                        } catch (err: any) { alert(err.response?.data?.error || 'Failed'); }
+                      }} className="flex-1 bg-[#00ff88] text-[#0f0f1e] rounded-xl py-2 text-xs font-bold hover:bg-[#00ff88]/80">
+                        ✅ Approve
+                      </button>
+                      <button onClick={async () => {
+                        try {
+                          await apiService.rejectDeposit(d._id);
+                          const ds = await apiService.getAdminDeposits();
+                          setDeposits(ds);
+                        } catch (err: any) { alert(err.response?.data?.error || 'Failed'); }
+                      }} className="flex-1 bg-[#ff4444] text-white rounded-xl py-2 text-xs font-bold hover:bg-[#ff4444]/80">
+                        ❌ Reject
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </section>
+        )}
+
+        {/* Ban Modal */}
+        {banModal && (
+          <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+            <div className="bg-[#12142c] border border-[#ff4444]/30 rounded-3xl p-6 w-full max-w-sm">
+              <h3 className="text-lg font-bold text-[#ff4444] mb-2">🚫 Ban User</h3>
+              <p className="text-xs text-[#b0b0b0] mb-4">Ban: <span className="text-[#ff4444] font-bold">{banModal.username}</span></p>
+              <textarea value={banReason} onChange={e => setBanReason(e.target.value)}
+                className="w-full bg-[#16213e] rounded-xl px-4 py-3 text-sm text-[#eaeaea] outline-none mb-4 min-h-[80px] resize-none"
+                placeholder="Enter ban reason..." />
+              <div className="flex gap-3">
+                <button onClick={() => { setBanModal(null); setBanReason(''); }} className="w-full btn-secondary text-sm">Cancel</button>
+                <button onClick={async () => {
+                  try {
+                    await apiService.adminBanUser(banModal.userId, banReason);
+                    const us = await apiService.getAdminUsers();
+                    setUsers(us);
+                    setBanModal(null);
+                    setBanReason('');
+                  } catch (err: any) { alert(err.response?.data?.error || 'Failed to ban'); }
+                }} className="w-full bg-[#ff4444] text-white rounded-xl py-3 text-sm font-bold hover:bg-[#ff4444]/80">
+                  Ban User
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Credit Modal */}

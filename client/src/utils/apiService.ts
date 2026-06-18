@@ -186,6 +186,79 @@ class ApiService {
     const res = await this.api.get('/api/admin/transactions');
     return res.data.transactions;
   }
+
+  async adminBanUser(userId: string, reason: string) {
+    this.updateToken();
+    const res = await this.api.post('/api/admin/ban', { userId, reason });
+    return res.data;
+  }
+
+  async adminUnbanUser(userId: string) {
+    this.updateToken();
+    const res = await this.api.post('/api/admin/unban', { userId });
+    return res.data;
+  }
+
+  async getAdminWithdraws() {
+    this.updateToken();
+    const res = await this.api.get('/api/admin/withdraws');
+    return res.data.withdraws;
+  }
+
+  async acceptWithdraw(id: string) {
+    this.updateToken();
+    const res = await this.api.post(`/api/admin/withdraws/${id}/accept`);
+    return res.data;
+  }
+
+  async rejectWithdraw(id: string) {
+    this.updateToken();
+    const res = await this.api.post(`/api/admin/withdraws/${id}/reject`);
+    return res.data;
+  }
+
+  async getAdminDeposits() {
+    this.updateToken();
+    const res = await this.api.get('/api/admin/deposits');
+    return res.data.deposits;
+  }
+
+  async approveDeposit(id: string) {
+    this.updateToken();
+    const res = await this.api.post(`/api/admin/deposits/${id}/approve`);
+    return res.data;
+  }
+
+  async rejectDeposit(id: string) {
+    this.updateToken();
+    const res = await this.api.post(`/api/admin/deposits/${id}/reject`);
+    return res.data;
+  }
+
+  // ---- FINANCE (User-facing) ----
+  async requestWithdraw(amount: number, upiId: string) {
+    this.updateToken();
+    const res = await this.api.post('/api/finance/withdraw', { amount, upiId });
+    return res.data;
+  }
+
+  async getMyWithdraws() {
+    this.updateToken();
+    const res = await this.api.get('/api/finance/my-withdraws');
+    return res.data.withdraws;
+  }
+
+  async requestDeposit(amount: number, utrNumber: string) {
+    this.updateToken();
+    const res = await this.api.post('/api/finance/deposit', { amount, utrNumber });
+    return res.data;
+  }
+
+  async getMyDeposits() {
+    this.updateToken();
+    const res = await this.api.get('/api/finance/my-deposits');
+    return res.data.deposits;
+  }
 }
 
 export default new ApiService();

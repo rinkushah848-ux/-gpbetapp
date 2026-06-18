@@ -310,11 +310,6 @@ export default function FreeFirePage() {
                   <label className="text-[10px] text-[#b0b0b0] mb-1 block">Entry Fee (pts)</label>
                   <input type="number" value={newFee} onChange={(e) => setNewFee(Math.max(1, Number(e.target.value)))} className="input-field text-sm" min={1} />
                 </div>
-                <div className="bg-[#00ff88]/10 border border-[#00ff88]/30 rounded-xl p-3 text-center">
-                  <p className="text-[10px] text-[#b0b0b0]">🏆 Winner Prize</p>
-                  <p className="text-lg font-bold text-[#00ff88]">{newFee * 2} pts</p>
-                  <p className="text-[9px] text-[#b0b0b0]">Entry fee × 2 (total pool when opponent joins)</p>
-                </div>
               </div>
               <div className="flex gap-3 mt-5">
                 <button onClick={() => { setShowCreate(false); setError(''); }} className="w-full btn-secondary text-sm">Cancel</button>
@@ -440,8 +435,19 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
           <div className="space-y-1 text-right">
             <p><span className="text-[#b0b0b0]">Rounds:</span> <span className="text-[#eaeaea] font-semibold">{room.rounds}</span></p>
             <p><span className="text-[#b0b0b0]">Coin:</span> <span className="text-[#eaeaea] font-semibold">{room.coin}</span></p>
-            <p><span className="text-[#b0b0b0]">Fee:</span> <span className="text-[#00ff88] font-semibold">{room.fee} pts</span></p>
           </div>
+        </div>
+      </div>
+
+      {/* Winner Prize & Entry Fee */}
+      <div className="grid grid-cols-2 gap-3 px-4 py-3 border-b border-[#00d4ff]/10">
+        <div className="bg-[#1a1c36] rounded-xl p-3 text-center">
+          <p className="text-[9px] text-[#b0b0b0] mb-1">🏆 WINNER PRIZE</p>
+          <p className="text-lg font-bold text-[#ffcc00]">{room.fee * 2} pts</p>
+        </div>
+        <div className="bg-[#1a1c36] rounded-xl p-3 text-center">
+          <p className="text-[9px] text-[#b0b0b0] mb-1">ENTRY FEE</p>
+          <p className="text-lg font-bold text-[#00ff88]">{room.fee} pts</p>
         </div>
       </div>
 
@@ -453,7 +459,7 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
       </div>
 
       {/* ID/Pass Section */}
-      {isActive && (room.roomIdPass ? ((isCreator || isJoined)) : isCreator) && (
+      {isActive && (isCreator || isJoined) && (
         <div className="px-4 py-2 border-b border-[#00d4ff]/10 bg-[#0f1a2e]">
           <div className="flex items-center justify-between">
             <p className="text-[10px] text-[#00d4ff] font-semibold">🔑 Room ID & Pass</p>
@@ -635,7 +641,7 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
               alert(err.response?.data?.error || 'Failed to join');
             }
           }} className="flex-1 rounded-xl bg-[#00d4ff] px-4 py-3 text-sm font-bold text-[#0f0f1e] transition hover:bg-[#00d4ff]/80">
-            Join • Win {room.fee * 2} pts
+            Join • Entry {room.fee} pts
           </button>
         )}
         {!isMyRoom && isActive && room.joinedBy && room.joinStatus === 'accepted' && isJoined && (

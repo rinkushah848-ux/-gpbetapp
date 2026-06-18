@@ -7,6 +7,8 @@ export interface IUser extends Document {
   uid: string;
   points: number;
   role: "user" | "admin";
+  isBanned: boolean;
+  banReason: string;
   createdAt: Date;
   lastActive: Date;
   comparePassword(enteredPassword: string): Promise<boolean>;
@@ -40,6 +42,14 @@ const userSchema = new mongoose.Schema<IUser>(
       type: String,
       enum: ["user", "admin"],
       default: "user",
+    },
+    isBanned: {
+      type: Boolean,
+      default: false,
+    },
+    banReason: {
+      type: String,
+      default: "",
     },
     lastActive: {
       type: Date,
