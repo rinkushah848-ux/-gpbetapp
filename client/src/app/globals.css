@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Dark theme for gaming style */
+:root {
+  --bg-primary: #0f0f1e;
+  --bg-secondary: #1a1a2e;
+  --bg-tertiary: #16213e;
+  --text-primary: #eaeaea;
+  --text-secondary: #b0b0b0;
+  --accent-primary: #00d4ff;
+  --accent-secondary: #ff006e;
+  --success: #00ff00;
+  --error: #ff4444;
+}
+
+body {
+  @apply bg-[#0f0f1e] text-[#eaeaea];
+}
+
+.glass {
+  @apply bg-white bg-opacity-10 backdrop-blur-md border border-white border-opacity-20;
+}
+
+.gradient-accent {
+  @apply bg-gradient-to-r from-[#00d4ff] to-[#ff006e];
+}
+
+.btn-primary {
+  @apply px-4 py-2 bg-[#00d4ff] text-[#0f0f1e] rounded-lg font-bold hover:bg-opacity-90 transition-all;
+}
+
+.btn-secondary {
+  @apply px-4 py-2 border border-[#00d4ff] text-[#00d4ff] rounded-lg font-bold hover:bg-[#00d4ff] hover:text-[#0f0f1e] transition-all;
+}
+
+.input-field {
+  @apply w-full px-4 py-2 bg-[#1a1a2e] border border-[#00d4ff] border-opacity-30 rounded-lg text-[#eaeaea] placeholder-[#b0b0b0] focus:outline-none focus:border-opacity-100 focus:ring-2 focus:ring-[#00d4ff] focus:ring-opacity-50 transition-all;
+}
+
+.card {
+  @apply bg-[#1a1a2e] border border-[#00d4ff] border-opacity-20 rounded-lg p-6;
+}
