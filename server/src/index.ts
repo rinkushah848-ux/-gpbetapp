@@ -7,9 +7,11 @@ import authRoutes from "./routes/auth";
 import roomRoutes from "./routes/rooms";
 import gameRoutes from "./routes/games";
 import notificationRoutes from "./routes/notifications";
+import pushRoutes from "./routes/push";
 import adminRoutes from "./routes/admin";
 import Room from "./models/Room";
 import UserNotification from "./models/UserNotification";
+import { sendPushToUser } from "./routes/push";
 
 dotenv.config();
 
@@ -35,6 +37,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/games", gameRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/push", pushRoutes);
 app.use("/api/admin", adminRoutes);
 
 // Health check
@@ -65,6 +68,17 @@ async function cleanupStaleRooms() {
       room.status = "cancelled";
       await room.save();
       console.log(`⏰ Auto-cancelled stale room: ${room.name} (${room._id})`);
+      const creatorId = room.creator?.toString();
+      if (creatorId) {
+        await UserNotification.create({
+          userId: creatorId,
+          type: "room_cancelled",
+          title: "Room Cancelled",
+          message: `Your room "${room.name}" was auto-cancelled (no one joined in ${ROOM_EXPIRY_MINUTES} min).`,
+          relatedId: room._id.toString(),
+        });
+        await sendPushToUser(creatorId, "Room Cancelled", `Room "${room.name}" auto-cancelled — no one joined.`, "/freefire");
+      }
     }
   } catch (err) {
     console.error("Cleanup error:", err);

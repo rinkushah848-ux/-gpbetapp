@@ -2,6 +2,7 @@ import { Router, Response } from "express";
 import User from "../models/User";
 import Transaction from "../models/Transaction";
 import UserNotification from "../models/UserNotification";
+import { sendPushToUser } from "./push";
 import { authMiddleware, AuthRequest } from "../middleware/auth";
 
 const router = Router();
@@ -72,6 +73,7 @@ router.post("/credit", async (req: AuthRequest, res: Response): Promise<void> =>
       title: "💰 Points Credited",
       message: `You received +${amount} pts${description ? `: ${description}` : ""}`,
     });
+    await sendPushToUser(String(target._id), "💰 Points Credited", `+${amount} pts${description ? `: ${description}` : ""}`, "/home");
 
     res.json({ user: target.toJSON() });
   } catch (err) {

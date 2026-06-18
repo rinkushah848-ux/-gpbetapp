@@ -3,6 +3,7 @@ import Room from "../models/Room";
 import User from "../models/User";
 import Transaction from "../models/Transaction";
 import UserNotification from "../models/UserNotification";
+import { sendPushToUser } from "./push";
 import { authMiddleware, AuthRequest } from "../middleware/auth";
 
 const router = Router();
@@ -199,6 +200,7 @@ router.post("/:id/accept", async (req: AuthRequest, res: Response): Promise<void
         message: `Your request to join "${room.name}" has been accepted by ${room.creatorName}.`,
         relatedId: String(room._id),
       });
+      await sendPushToUser(String(room.joinedBy), "✅ Join Accepted", `You joined "${room.name}"`, "/freefire");
     }
 
     const populated = await Room.findById(room._id)

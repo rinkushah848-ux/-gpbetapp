@@ -4,6 +4,7 @@ import Room from "../models/Room";
 import User from "../models/User";
 import Transaction from "../models/Transaction";
 import UserNotification from "../models/UserNotification";
+import { sendPushToUser } from "./push";
 import { authMiddleware, AuthRequest } from "../middleware/auth";
 
 const router = Router();
@@ -180,6 +181,7 @@ router.post("/approve/:gameId", async (req: AuthRequest, res: Response): Promise
       message: `You won the match "${room.name}" and earned +${totalPool} pts!`,
       relatedId: String(room._id),
     });
+    await sendPushToUser(String(winner._id), "🏆 You Won!", `You won "${room.name}" +${totalPool} pts!`, "/freefire");
 
     const loserId =
       String(room.creator) === String(winner._id)
@@ -193,6 +195,7 @@ router.post("/approve/:gameId", async (req: AuthRequest, res: Response): Promise
         message: `The match "${room.name}" has been completed. Winner: ${winner.username}`,
         relatedId: String(room._id),
       });
+      await sendPushToUser(String(loserId), "Match Completed", `"${room.name}" winner: ${winner.username}`, "/freefire");
     }
 
     res.json({ game });
