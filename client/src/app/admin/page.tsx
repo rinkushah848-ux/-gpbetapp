@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import BottomNav from '@/components/BottomNav';
 import Header from '@/components/Header';
 import NotificationBanner from '@/components/NotificationBanner';
-import NotificationCenter from '@/components/NotificationCenter';
 import authService, { User } from '@/utils/authService';
 import apiService, { GameData } from '@/utils/apiService';
 import { useProtectedRoute } from '@/utils/useAuth';
@@ -133,9 +132,7 @@ export default function AdminPage() {
       <div className="max-w-3xl mx-auto space-y-5">
         <div className="flex items-center justify-between">
           <Header title="Admin Panel" subtitle="Manage reviews & points" />
-          <div className="flex items-center gap-3">
-            <NotificationCenter />
-            <div className="rounded-2xl border border-[#ffcc00]/20 bg-[#1a1c36] px-4 py-3 text-right">
+          <div className="rounded-2xl border border-[#ffcc00]/20 bg-[#1a1c36] px-4 py-3 text-right">
               <p className="text-[10px] text-[#ffcc00]">Admin</p>
               <p className="text-lg font-bold text-[#ffcc00]">{user?.username}</p>
             </div>
