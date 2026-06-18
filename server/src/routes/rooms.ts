@@ -1,4 +1,5 @@
 import { Router, Response } from "express";
+
 import Room from "../models/Room";
 import User from "../models/User";
 import Transaction from "../models/Transaction";
@@ -49,21 +50,30 @@ router.post("/", async (req: AuthRequest, res: Response): Promise<void> => {
       roomId, roomPass,
     } = req.body;
 
-    if (!name || !fee) {
+    if (!name || fee === undefined || fee === null) {
       res.status(400).json({ error: "Name and fee are required" });
       return;
     }
 
+    // Allow any fee between 10 and 1000 (creator input)
+    const parsedFee = Number(fee);
+    if (!Number.isFinite(parsedFee) || parsedFee < 10 || parsedFee > 1000) {
+      res.status(400).json({ error: "Fee must be between 10 and 1000" });
+      return;
+    }
+
     const user = await User.findById(req.user?.id);
+
     if (!user) {
       res.status(404).json({ error: "User not found" });
       return;
     }
 
-    if (user.points < fee) {
+    if (user.points < parsedFee) {
       res.status(400).json({ error: "Insufficient points" });
       return;
     }
+
 
     const existing = await Room.findOne({
       $or: [{ creator: req.user?.id }, { joinedBy: req.user?.id }],
@@ -75,7 +85,8 @@ router.post("/", async (req: AuthRequest, res: Response): Promise<void> => {
     }
 
     const room = new Room({
-      name, fee, type: type || "lonewolf", size: size || "1v1",
+      name, fee: parsedFee, type: type || "lonewolf", size: size || "1v1",
+
       headshot: headshot || "yes", rounds: rounds || "7", coin: coin || "Default",
       throwable: throwable || "yes",
       charAbility: charAbility || "yes", character: character || "",
@@ -88,7 +99,8 @@ router.post("/", async (req: AuthRequest, res: Response): Promise<void> => {
 
     await room.save();
 
-    user.points -= fee;
+    user.points -= parsedFee;
+
     await user.save();
 
     await Transaction.create({
@@ -128,6 +140,7 @@ router.post("/:id/join", async (req: AuthRequest, res: Response): Promise<void> 
       res.status(400).json({ error: "Room already has a pending/accepted player" });
       return;
     }
+
 
     const user = await User.findById(req.user?.id);
     if (!user) {

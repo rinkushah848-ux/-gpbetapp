@@ -12,6 +12,10 @@ const MIN_DEPOSIT = 30;
 const MAX_DEPOSIT = 1000;
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
+// eSewa QR image for owner (paste latest link here if you update QR)
+const DEPOSIT_QR_URL = 'https://cdn.discordapp.com/attachments/1516081649907929341/1517167945258762240/eSewa_My_QR_9764880598_1781791407317_2026-06-18_19_48_27.jpg?ex=6a354c41&is=6a33fac1&hm=344725c797af773bba9fa6b603059cdae02e2fb5d7ba3918ed5e3e380858b502';
+
+
 interface DepositRecord {
   _id: string;
   amount: number;
@@ -33,8 +37,8 @@ export default function DepositPage() {
   const [customAmount, setCustomAmount] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [deposits, setDeposits] = useState<DepositRecord[]>([]);
   const [successMsg, setSuccessMsg] = useState('');
+
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -48,22 +52,7 @@ export default function DepositPage() {
     fetchUser();
   }, []);
 
-  useEffect(() => {
-    fetchDeposits();
-  }, []);
 
-  const fetchDeposits = async () => {
-    try {
-      const token = authService.getToken();
-      const res = await fetch(`${API_URL}/api/finance/my-deposits`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data: DepositResponse = await res.json();
-      setDeposits(data.deposits || []);
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   const handlePresetClick = (value: number) => {
     setAmount(value);
@@ -207,6 +196,17 @@ export default function DepositPage() {
             </div>
           </div>
 
+          {/* eSewa QR for owner payment */}
+          <div className="mb-5 rounded-2xl border border-[#00d4ff]/10 bg-[#13162a] p-4">
+            <p className="text-[#b0b0b0] text-xs uppercase tracking-[0.3em] mb-3">Owner eSewa QR</p>
+            <div className="rounded-xl bg-[#0f0f1e] p-3 flex flex-col items-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={DEPOSIT_QR_URL} alt="eSewa QR" className="max-w-[240px] rounded-lg" />
+              <p className="mt-3 text-[11px] text-[#b0b0b0] text-center">Pay from your app using this QR, then submit UTR in eSewa success flow.</p>
+            </div>
+          </div>
+
+
           <button
             onClick={handlePay}
             disabled={loading}
@@ -216,59 +216,7 @@ export default function DepositPage() {
           </button>
         </div>
 
-        <div className="card">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-[#b0b0b0] text-xs uppercase tracking-[0.3em]">Deposit History</p>
-            <button onClick={fetchDeposits} className="text-[#00d4ff] text-xs font-semibold hover:underline">
-              Refresh
-            </button>
-          </div>
 
-          {deposits.length === 0 ? (
-            <p className="text-[#b0b0b0] text-sm py-6 text-center">No deposits yet</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-[#b0b0b0] text-xs uppercase border-b border-[#00d4ff] border-opacity-10">
-                    <th className="text-left py-3 pr-3">Date</th>
-                    <th className="text-right pr-3">Amount (NPR)</th>
-                    <th className="text-right pr-3">Points</th>
-                    <th className="text-right pr-3">Status</th>
-                    <th className="text-right">UTR</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {deposits.map((d) => (
-                    <tr key={d._id} className="border-b border-[#00d4ff] border-opacity-5">
-                      <td className="py-3 pr-3 text-[#eaeaea] whitespace-nowrap">
-                        {new Date(d.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="py-3 pr-3 text-right text-[#eaeaea]">{d.amount}</td>
-                      <td className="py-3 pr-3 text-right text-[#00ff88]">{d.amount}</td>
-                      <td className="py-3 pr-3 text-right">
-                        <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                            d.status === 'approved'
-                              ? 'text-[#00ff88] bg-[#00ff88]/10'
-                              : d.status === 'rejected'
-                              ? 'text-[#ff006e] bg-[#ff006e]/10'
-                              : 'text-[#ffcc00] bg-[#ffcc00]/10'
-                          }`}
-                        >
-                          {d.status}
-                        </span>
-                      </td>
-                      <td className="py-3 text-right text-[#b0b0b0] text-[10px] max-w-[80px] truncate">
-                        {d.utrNumber || d.uuid || '—'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
       </div>
       <BottomNav />
     </div>
