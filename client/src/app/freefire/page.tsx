@@ -149,9 +149,9 @@ export default function FreeFirePage() {
   };
 
   const tabs = [
-    { key: 'main' as const, label: 'Main', icon: 'Home' },
-    { key: 'tournament' as const, label: 'Tournament', icon: 'Cup' },
-    { key: 'room' as const, label: 'Room', icon: 'Door' },
+    { key: 'main' as const, label: 'Main', icon: 'home' },
+    { key: 'tournament' as const, label: 'Tournament', icon: 'cup' },
+    { key: 'room' as const, label: 'Room', icon: 'door' },
   ];
 
   if (isLoading) {
@@ -186,7 +186,10 @@ export default function FreeFirePage() {
                 tab === t.key ? 'bg-[#00d4ff] text-[#0f0f1e]' : 'bg-[#16213e] text-[#b0b0b0] hover:bg-[#00d4ff] hover:text-[#0f0f1e]'
               }`}
             >
-              {t.icon} {t.label}
+              <span className="inline-flex items-center justify-center gap-2">
+                <FreeFireTabIcon name={t.icon} />
+                {t.label}
+              </span>
             </button>
           ))}
         </div>
@@ -355,6 +358,38 @@ export default function FreeFirePage() {
       </div>
       <BottomNav />
     </div>
+  );
+}
+
+function FreeFireTabIcon({ name }: { name: string }) {
+  if (name === 'cup') {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M8 21h8" />
+        <path d="M12 17v4" />
+        <path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" />
+        <path d="M5 6H3v2a4 4 0 0 0 4 4" />
+        <path d="M19 6h2v2a4 4 0 0 1-4 4" />
+      </svg>
+    );
+  }
+
+  if (name === 'door') {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M5 21V4a1 1 0 0 1 1-1h11v18" />
+        <path d="M17 21h2" />
+        <path d="M10 12h.01" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="m3 11 9-8 9 8" />
+      <path d="M5 10v10h14V10" />
+      <path d="M9 20v-6h6v6" />
+    </svg>
   );
 }
 
