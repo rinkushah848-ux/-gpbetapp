@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import BottomNav from '@/components/BottomNav';
 import Header from '@/components/Header';
 import NotificationBanner from '@/components/NotificationBanner';
@@ -11,6 +12,7 @@ import { useProtectedRoute } from '@/utils/useAuth';
 
 export default function AdminPage() {
   const { isLoading } = useProtectedRoute();
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [tab, setTab] = useState<'reviews' | 'users' | 'transactions'>('reviews');
   const [pendingGames, setPendingGames] = useState<GameData[]>([]);
@@ -20,6 +22,10 @@ export default function AdminPage() {
   const [creditModal, setCreditModal] = useState<{ userId: string; username: string } | null>(null);
   const [creditAmt, setCreditAmt] = useState(0);
   const [creditDesc, setCreditDesc] = useState('');
+  const [adminId, setAdminId] = useState('');
+  const [adminPass, setAdminPass] = useState('');
+  const [adminError, setAdminError] = useState('');
+  const [adminLoading, setAdminLoading] = useState(false);
 
   useEffect(() => {
     authService.getMe().then(setUser).catch(console.error);
@@ -83,10 +89,33 @@ export default function AdminPage() {
   if (user.role !== 'admin') {
     return (
       <div className="min-h-screen bg-[#0f0f1e] flex items-center justify-center p-4">
-        <div className="text-center">
-          <p className="text-4xl mb-4">🔒</p>
-          <h2 className="text-xl font-bold text-[#eaeaea] mb-2">Access Denied</h2>
-          <p className="text-sm text-[#b0b0b0]">Only admins can access this panel.</p>
+        <div className="w-full max-w-sm rounded-3xl border border-[#ffcc00]/20 bg-[#13162a] p-6 text-center shadow-2xl">
+          <p className="text-4xl mb-3">🔐</p>
+          <h2 className="text-xl font-bold text-[#eaeaea] mb-1">Admin Login</h2>
+          <p className="text-xs text-[#b0b0b0] mb-5">Enter admin credentials to access panel</p>
+          {adminError && <p className="text-xs text-red-400 mb-3">{adminError}</p>}
+          <input type="text" value={adminId} onChange={e => setAdminId(e.target.value)} placeholder="Admin ID" className="w-full bg-[#16213e] rounded-xl px-4 py-3 text-sm text-[#eaeaea] outline-none mb-3" />
+          <input type="password" value={adminPass} onChange={e => setAdminPass(e.target.value)} placeholder="Password" className="w-full bg-[#16213e] rounded-xl px-4 py-3 text-sm text-[#eaeaea] outline-none mb-4" />
+          <button onClick={async () => {
+            setAdminError('');
+            setAdminLoading(true);
+            try {
+              await authService.login({ username: adminId.trim(), password: adminPass.trim() });
+              const u = await authService.getMe();
+              if (u.role !== 'admin') {
+                setAdminError('This account is not an admin.');
+                authService.clearToken();
+                setAdminLoading(false);
+                return;
+              }
+              setUser(u);
+            } catch (err: any) {
+              setAdminError(err.response?.data?.error || 'Invalid credentials');
+            }
+            setAdminLoading(false);
+          }} disabled={adminLoading} className="w-full rounded-xl bg-[#ffcc00] px-4 py-3 text-sm font-bold text-[#0f0f1e] transition hover:bg-[#ffe44d] disabled:opacity-60">
+            {adminLoading ? 'Logging in...' : 'Login'}
+          </button>
         </div>
       </div>
     );
