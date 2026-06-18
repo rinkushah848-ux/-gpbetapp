@@ -313,7 +313,7 @@ export default function FreeFirePage() {
               </div>
               <div className="flex gap-3 mt-5">
                 <button onClick={() => { setShowCreate(false); setError(''); }} className="w-full btn-secondary text-sm">Cancel</button>
-                <button onClick={handleCreate} className="w-full btn-primary text-sm">Create - {newFee} pts</button>
+                <button onClick={handleCreate} className="w-full btn-primary text-sm">Create - {newFee} points</button>
               </div>
             </div>
           </div>
@@ -443,11 +443,11 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
       <div className="grid grid-cols-2 gap-3 px-4 py-3 border-b border-[#00d4ff]/10">
         <div className="bg-[#1a1c36] rounded-xl p-3 text-center">
           <p className="text-[9px] text-[#b0b0b0] mb-1">            🏆 WINNINGS</p>
-          <p className="text-lg font-bold text-[#ffcc00]">{room.fee * 2} pts</p>
+          <p className="text-lg font-bold text-[#ffcc00]">{room.fee * 2} points</p>
         </div>
         <div className="bg-[#1a1c36] rounded-xl p-3 text-center">
           <p className="text-[9px] text-[#b0b0b0] mb-1">ENTRY FEE</p>
-          <p className="text-lg font-bold text-[#00ff88]">{room.fee} pts</p>
+          <p className="text-lg font-bold text-[#00ff88]">{room.fee} points</p>
         </div>
       </div>
 
@@ -582,7 +582,7 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
       {gameReview && gameReview.status === 'completed' && (
         <div className="px-4 py-3 border-b border-[#00ff88]/20 bg-[#10251f]">
           <p className="text-[10px] font-bold text-[#00ff88] text-center">
-            ✅ Winner: {gameReview.winner?.username} | +{gameReview.pointsAwarded} pts
+            ✅ Winner: {gameReview.winner?.username} | +{gameReview.pointsAwarded} points
           </p>
         </div>
       )}
@@ -598,17 +598,17 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
               alert(err.response?.data?.error || 'Failed to join');
             }
           }} className="flex-1 rounded-xl bg-[#00d4ff] px-4 py-3 text-sm font-bold text-[#0f0f1e] transition hover:bg-[#00d4ff]/80">
-            Join : {room.fee} pts
+            Join : {room.fee} points
           </button>
         )}
         {isActive && isJoined && (
           <span className="flex-1 rounded-xl bg-[#00d4ff]/10 px-4 py-3 text-sm font-bold text-[#00d4ff]/60 text-center">
-            Entry {room.fee} pts
+            Entry {room.fee} points
           </span>
         )}
         {isActive && isCreator && (
           <span className="flex-1 rounded-xl bg-[#00d4ff]/10 px-4 py-3 text-sm font-bold text-[#00d4ff]/60 text-center">
-            Entry {room.fee} pts
+            Entry {room.fee} points
           </span>
         )}
         {isCreator && isActive && room.joinedBy && !room.roomIdPass && (
@@ -688,7 +688,7 @@ function TournamentSection() {
               <span className="rounded-full bg-[#00d4ff]/20 px-3 py-1 text-xs font-bold text-[#00d4ff]">{room.mode}</span>
               <h3 className="mt-2 text-lg font-bold text-[#ffffff]">{room.name}</h3>
             </div>
-            <span className="text-sm font-bold text-[#00ff88]">{room.fee} pts</span>
+            <span className="text-sm font-bold text-[#00ff88]">{room.fee} points</span>
           </div>
         ))}
       </div>
