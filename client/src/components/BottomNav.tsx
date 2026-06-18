@@ -1,39 +1,42 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import authService, { User } from '@/utils/authService';
 
 const tabs = [
-  { label: 'Home', href: '/home', icon: '🏠' },
-  { label: 'Profile', href: '/profile', icon: '👤' },
+  { label: 'Home', href: '/home', icon: '⌂' },
+  { label: 'Profile', href: '/profile', icon: '◉' },
+];
+
+const freeFireTabs = [
+  { label: 'Games', href: '/home', icon: '🎮' },
+  { label: 'Clash Squad -\nFree Fire', href: '/freefire', icon: '✣' },
+  { label: 'Redeem', href: '/profile', icon: '▰' },
 ];
 
 export default function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    authService.getMe().then(setUser).catch(() => {});
-  }, []);
-
-  const allTabs = tabs;
+  const isFreeFire = pathname === '/freefire';
+  const allTabs = isFreeFire ? freeFireTabs : tabs;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#0f0f1e] border-t border-[#00d4ff] border-opacity-10 backdrop-blur-md py-3 px-5 shadow-[0_-12px_30px_rgba(0,0,0,0.35)]">
-      <div className="flex items-center justify-between max-w-4xl mx-auto">
+    <div className={`fixed bottom-0 left-0 right-0 z-40 border-t px-5 py-3 backdrop-blur-md shadow-[0_-12px_30px_rgba(0,0,0,0.12)] ${
+      isFreeFire ? 'border-[#d7e1e6] bg-[#eef5f9]' : 'border-[#00d4ff]/10 bg-[#0f0f1e]'
+    }`}>
+      <div className="mx-auto flex max-w-md items-center justify-between">
         {allTabs.map((tab) => {
           const isActive = pathname === tab.href;
           return (
             <button
               key={tab.href}
               onClick={() => router.push(tab.href)}
-              className={`flex flex-col items-center gap-1 text-xs font-semibold transition-colors ${
-                isActive ? 'text-[#00ff88]' : 'text-[#b0b0b0] hover:text-[#00d4ff]'
+              className={`flex min-w-20 flex-col items-center gap-1 whitespace-pre-line text-center text-xs font-semibold transition-colors ${
+                isFreeFire
+                  ? isActive ? 'text-[#111820]' : 'text-[#8a9398] hover:text-[#111820]'
+                  : isActive ? 'text-[#00ff88]' : 'text-[#b0b0b0] hover:text-[#00d4ff]'
               }`}
             >
-              <span className="text-lg">{tab.icon}</span>
+              <span className="text-2xl leading-none">{tab.icon}</span>
               <span>{tab.label}</span>
             </button>
           );
