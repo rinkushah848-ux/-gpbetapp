@@ -546,7 +546,30 @@ function RoomCard({ room, user, myRoom, onRefresh }: { room: RoomData; user: Use
           </button>
         </div>
       )}
-
+      {isCreator && isActive && room.joinedBy && room.joinStatus === 'accepted' && !room.roomIdPass && (
+        <div className="border-b border-[#00d4ff]/10 px-4 py-2">
+          <button onClick={() => setShowIdPass(!showIdPass)} className="w-full rounded-lg bg-[#ffcc00]/15 px-3 py-2 text-[11px] font-bold text-[#ffcc00] transition hover:bg-[#ffcc00] hover:text-[#0f0f1e]">
+            Add ID/Pass
+          </button>
+          {showIdPass && (
+            <div className="flex gap-2 mt-2">
+              <input value={roomIdInput} onChange={(e) => setRoomIdInput(e.target.value)} className="flex-1 rounded-lg bg-[#16213e] px-3 py-1.5 text-[11px] text-[#eaeaea] outline-none" placeholder="Room ID" />
+              <input value={roomPassInput} onChange={(e) => setRoomPassInput(e.target.value)} className="flex-1 rounded-lg bg-[#16213e] px-3 py-1.5 text-[11px] text-[#eaeaea] outline-none" placeholder="Pass (optional)" />
+              <button onClick={async () => { await apiService.giveIdPass(room._id, roomIdInput, roomPassInput); setShowIdPass(false); onRefresh(); }} className="rounded-lg bg-[#00d4ff] px-4 py-1.5 text-[11px] font-bold text-[#0f0f1e]">Done</button>
+            </div>
+          )}
+        </div>
+      )}
+      {isActive && room.roomIdPass && isCreator && (
+        <div className="border-b border-[#00d4ff]/10 bg-[#0f1a2e] px-4 py-2">
+          <p className="text-[10px] text-[#00ff88]">ID: {room.roomIdPass}{room.roomPass ? ` | Pass: ${room.roomPass}` : ''}</p>
+          {!showSS && (
+            <button onClick={() => setShowSS(true)} className="mt-2 w-full rounded-lg bg-[#00ff88]/15 px-3 py-2 text-[11px] font-bold text-[#00ff88] transition hover:bg-[#00ff88] hover:text-[#0f0f1e]">
+              Result
+            </button>
+          )}
+        </div>
+      )}
       <button onClick={() => setShowItems(!showItems)} className="flex w-full items-center justify-between border-b border-[#00d4ff]/10 px-4 py-3 text-xs font-semibold text-[#b0b0b0] transition hover:text-[#eaeaea]">
         <span>Compulsory Items</span>
         <span className={`transition-transform ${showItems ? 'rotate-180' : ''}`}>v</span>
@@ -566,17 +589,6 @@ function RoomCard({ room, user, myRoom, onRefresh }: { room: RoomData; user: Use
             <p className="font-semibold text-[#00d4ff]">Armor</p>
             <p>Restricted: <span className="text-[#eaeaea]">{room.unallowedArmor}</span></p>
           </div>
-        </div>
-      )}
-
-      {isActive && room.roomIdPass && isCreator && (
-        <div className="border-b border-[#00d4ff]/10 bg-[#0f1a2e] px-4 py-2">
-          <p className="text-[10px] text-[#00ff88]">ID: {room.roomIdPass}{room.roomPass ? ` | Pass: ${room.roomPass}` : ''}</p>
-          {!showSS && (
-            <button onClick={() => setShowSS(true)} className="mt-2 w-full rounded-lg bg-[#00ff88]/15 px-4 py-2 text-xs font-bold text-[#00ff88] transition hover:bg-[#00ff88] hover:text-[#0f0f1e]">
-              Result
-            </button>
-          )}
         </div>
       )}
 
@@ -601,20 +613,7 @@ function RoomCard({ room, user, myRoom, onRefresh }: { room: RoomData; user: Use
             Leave
           </button>
         )}
-        {isCreator && isActive && room.joinedBy && room.joinStatus === 'accepted' && !room.roomIdPass && (
-          <button onClick={() => setShowIdPass(!showIdPass)} className="flex-1 rounded-xl bg-[#ffcc00]/20 px-4 py-3 text-sm font-bold text-[#ffcc00]">
-            Add ID/Pass
-          </button>
-        )}
       </div>
-      {showIdPass && isCreator && (
-        <div className="space-y-2 border-t border-[#ffcc00]/20 px-4 pb-4 pt-3">
-          <input value={roomIdInput} onChange={(e) => setRoomIdInput(e.target.value)} className="w-full rounded-lg bg-[#16213e] px-3 py-2 text-xs text-[#eaeaea] outline-none" placeholder="Room ID" />
-          <input value={roomPassInput} onChange={(e) => setRoomPassInput(e.target.value)} className="w-full rounded-lg bg-[#16213e] px-3 py-2 text-xs text-[#eaeaea] outline-none" placeholder="Room Password (optional)" />
-          <button onClick={async () => { await apiService.giveIdPass(room._id, roomIdInput, roomPassInput); setShowIdPass(false); onRefresh(); }} className="w-full rounded-lg bg-[#00d4ff] py-2 text-xs font-bold text-[#0f0f1e]">Done</button>
-        </div>
-      )}
-
       {showSS && (
         <div className="space-y-2 border-t border-[#00d4ff]/10 px-4 pb-4 pt-3">
           <input type="file" accept="image/*" onChange={async (e) => {
