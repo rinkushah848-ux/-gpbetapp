@@ -403,7 +403,6 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
         {isActive && !isPending && <span className="text-[10px] text-[#00ff88]">● Active</span>}
         {isPending && <span className="text-[10px] text-[#ffcc00]">⏳ Pending</span>}
         <span className="text-[10px] text-[#00d4ff]">Fee: {room.fee}pts</span>
-        <span className="text-[10px] text-[#00ff88] font-bold">🏆 {room.fee * 2}pts</span>
         {isCreator && isActive && (
           <button onClick={async () => {
             try {
@@ -442,7 +441,6 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
             <p><span className="text-[#b0b0b0]">Rounds:</span> <span className="text-[#eaeaea] font-semibold">{room.rounds}</span></p>
             <p><span className="text-[#b0b0b0]">Coin:</span> <span className="text-[#eaeaea] font-semibold">{room.coin}</span></p>
             <p><span className="text-[#b0b0b0]">Fee:</span> <span className="text-[#00ff88] font-semibold">{room.fee} pts</span></p>
-            <p><span className="text-[#b0b0b0]">Winner:</span> <span className="text-[#ffcc00] font-semibold">{room.fee * 2} pts</span></p>
           </div>
         </div>
       </div>
@@ -570,11 +568,11 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
         )}
       </div>
 
-      {/* Game Over - Screenshot Arrow Section */}
-      {isFinished && !isCancelled && (
+      {/* Result - Screenshot Arrow Section (shows after ID/Pass given) */}
+      {isActive && room.roomIdPass && (isCreator || isJoined) && (
         <div className="border-b border-[#00d4ff]/10">
           <button onClick={() => setShowSS(!showSS)} className="w-full flex items-center justify-between px-4 py-3 text-xs font-semibold text-[#ffcc00] hover:text-[#ffff00] transition">
-            <span>📸 Add Match Screenshot {showSS ? '▲' : '▼'}</span>
+            <span>📸 Result {showSS ? '▲' : '▼'}</span>
           </button>
           {showSS && (
             <div className="px-4 pb-3 space-y-2">
