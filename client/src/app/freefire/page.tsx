@@ -574,34 +574,6 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
         )}
       </div>
 
-      {/* Result - Screenshot Arrow Section (shows after ID/Pass given) */}
-      {isActive && room.roomIdPass && (isCreator || isJoined) && (
-        <div className="border-b border-[#00d4ff]/10">
-          <button onClick={() => setShowSS(!showSS)} className="w-full flex items-center justify-between px-4 py-3 text-xs font-semibold text-[#ffcc00] hover:text-[#ffff00] transition">
-            <span>📸 Result {showSS ? '▲' : '▼'}</span>
-          </button>
-          {showSS && (
-            <div className="px-4 pb-3 space-y-2">
-              <input type="file" accept="image/*" onChange={async (e) => {
-                const f = e.target.files?.[0];
-                if (f) setScreenshot(await toBase64(f));
-              }} className="text-[10px] text-[#b0b0b0]" />
-              {screenshot && <img src={screenshot} alt="preview" className="max-h-28 rounded-lg" />}
-              <input type="text" value={ssMsg} onChange={e => setSsMsg(e.target.value)} placeholder="Add a message..." className="w-full bg-[#16213e] rounded-lg px-3 py-2 text-xs text-[#eaeaea] outline-none" />
-              {screenshot && ssMsg ? (
-                <button onClick={handleUploadSS} className="w-full bg-[#00ff88] text-[#0f0f1e] rounded-lg py-2 text-xs font-bold">
-                  → Submit Result
-                </button>
-              ) : (
-                <div className="w-full bg-[#555]/20 text-[#555] rounded-lg py-2 text-xs font-bold text-center">
-                  {screenshot ? 'Add a message...' : ssMsg ? 'Add a screenshot...' : 'Select screenshot & add message'}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-
       {/* Review Embed - when screenshots uploaded */}
       {gameReview && gameReview.status === 'review' && (
         <div className="px-4 py-3 border-b border-[#ffcc00]/20 bg-[#1a1c36]">
@@ -649,7 +621,31 @@ function RoomCard({ room, user, myRoom, onRefresh }: {
             Leave Room
           </button>
         )}
+        {isActive && room.roomIdPass && (isCreator || isJoined) && !showSS && (
+          <button onClick={() => setShowSS(true)} className="flex-1 rounded-xl bg-[#00ff88]/15 px-4 py-3 text-sm font-bold text-[#00ff88] transition hover:bg-[#00ff88] hover:text-[#0f0f1e]">
+            📸 Result
+          </button>
+        )}
       </div>
+      {showSS && (
+        <div className="px-4 pb-4 space-y-2 border-t border-[#00d4ff]/10 pt-3">
+          <input type="file" accept="image/*" onChange={async (e) => {
+            const f = e.target.files?.[0];
+            if (f) setScreenshot(await toBase64(f));
+          }} className="text-[10px] text-[#b0b0b0]" />
+          {screenshot && <img src={screenshot} alt="preview" className="max-h-28 rounded-lg" />}
+          <input type="text" value={ssMsg} onChange={e => setSsMsg(e.target.value)} placeholder="Add a message..." className="w-full bg-[#16213e] rounded-lg px-3 py-2 text-xs text-[#eaeaea] outline-none" />
+          {screenshot && ssMsg ? (
+            <button onClick={handleUploadSS} className="w-full bg-[#00ff88] text-[#0f0f1e] rounded-lg py-2 text-xs font-bold">
+              → Submit Result
+            </button>
+          ) : (
+            <div className="w-full bg-[#555]/20 text-[#555] rounded-lg py-2 text-xs font-bold text-center">
+              {screenshot ? 'Add a message...' : ssMsg ? 'Add a screenshot...' : 'Select screenshot & add message'}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
